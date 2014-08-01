@@ -1,0 +1,46 @@
+all: ${LIBTARGET} ${TARGET}
+
+ifdef LIBTARGET
+CXXFLAGS+=-fPIC
+CFLAGS+=-fPIC
+endif
+
+%.o : %.cc
+	$(CXX) ${CXXFLAGS} ${INC} -c $< -o $@
+
+%.o : %.c
+	$(CC) ${CFLAGS} ${INC} -c $< -o $@
+
+ifdef LIBTARGET
+${LIBTARGET}: ${LIBOBJS}
+	${RM} lib$@.*
+	${AR} rc lib$@.a $^
+	${RANLIB} lib$@.a
+#	$(CXX) -fPIC -shared -o lib$@.so $^
+endif
+
+ifdef TARGET
+${TARGET}: ${OBJS}
+	${CXX} ${LDFLAGS} ${OBJS} -o $@ ${LIBS}
+endif
+
+ifdef DESTDIR
+install: all
+  ifdef LIBTARGET
+	$(MKDIR) $(DESTDIR)/lib
+	$(CP) lib$(LIBTARGET).* $(DESTDIR)/lib
+  endif
+  ifdef TARGET
+	$(MKDIR) $(DESTDIR)/bin
+	$(CP) $(TARGET) $(DESTDIR)/bin
+  endif
+  ifdef INSTALLINC
+	$(MKDIR) $(DESTDIR)/include
+	$(CP) $(INSTALLINC) $(DESTDIR)/include
+  endif
+else
+install:
+endif
+
+clean:
+	rm -f *.o *.d *~ *.a *.so ${TARGET}

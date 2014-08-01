@@ -1,0 +1,22 @@
+TOPDIR  := $(dir $(lastword $(MAKEFILE_LIST)))
+
+CC     = icc
+CXX    = icpc
+LD     = xild
+AR     = xiar
+RANLIB = ranlib
+MEX    = mex
+
+CXXFLAGS  = -O3 -Wall -w2
+CXXFLAGS += -openmp
+CXXFLAGS += -mkl
+CXXFLAGS += -std=c++11
+CXXFLAGS += -Wsign-compare -Wunknown-pragmas -Wreturn-type
+CXXFLAGS += -Wunused-variable -Wuninitialized -Wmissing-prototypes -Wmissing-declarations
+CXXFLAGS += -no-offload
+
+CP    = cp -f
+RM    = rm -f
+MKDIR = mkdir -p
+
+.PHONY: all install clean
