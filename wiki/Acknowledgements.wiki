@@ -1,0 +1,1 @@
+Work on StokesDT is supported by the National Science Foundation under grant ACI-1306573.

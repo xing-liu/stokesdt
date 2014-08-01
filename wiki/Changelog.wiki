@@ -1,0 +1,13 @@
+Current: version 0.1.0
+
+[Changelog#version_0.1.0 version 0.1.0]
+
+=Version 0.1.0=
+ * Supports both the Ewald method and the Smooth Particle Mesh Ewald (SPME) method for computing long range hydrodynamic interactions.
+ * Supports both the Cholesky factorization approach and the Krylov subspace method for computing Brownian displacements.
+ * Uses Verlet lists to evaluate short-range interactions.
+ * Uses OpenMP for shared-memory systems. 
+ * Supports SSE and AVX.
+ * Supports hybrid computing model using Intel Xeon Phi.
+ * Rewritten in C++ with object-oriented design.
+ 

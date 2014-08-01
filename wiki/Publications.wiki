@@ -1,0 +1,2 @@
+ # Xing Liu and Edmond Chow, ''Large-scale Hydrodynamic Brownian Simulations on Multicore and Manycore Architectures,'' In 28th IEEE International Parallel & Distributed Processing Symposium (IPDPS), Phoenix, AZ, May 19-23, 2014.
+ # Xing Liu, Edmond Chow, Karthikeyan Vaidyanathan, and Mikhail Smelyanskiy, '' Improving the Performance of Dynamical Simulations Via Multiple Right-hand Sides,'' In 26th IEEE International Parallel & Distributed Processing Symposium (IPDPS), Shanghai, China, May 21-25, 2012.
