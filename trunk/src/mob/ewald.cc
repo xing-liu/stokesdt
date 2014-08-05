@@ -88,7 +88,7 @@ void EwaldKernel(const double xi, const EwaldTable *ewald_tbl,
                  const double *pos, const double *rdi,
                  const int ldmat, double *mat,
                  double *mat_real, double *mat_recip)
-{
+{    
     // compute tile size
     int align_dp = detail::kAlignLen/sizeof(double);
     int tile_size;
@@ -326,7 +326,7 @@ void EwaldKernel(const double xi, const EwaldTable *ewald_tbl,
                 } // for (int j = startj; j < endj; j++)
             } // for (int i = starti; i < endi; i++)
         } // end of #pragma omp for schedule(dynamic)
-    } // end of #pragma omp parallel    
+    } // end of #pragma omp parallel
 }
 
 
@@ -533,6 +533,110 @@ void EwaldVectorKernel(const double xi, const EwaldTable *ewald_tbl,
             } // for (int j = 0; j < npos; j++) 
         } // for (int i = 0; i < npos; i++)
     } // end of #pragma omp parallel    
+}
+
+
+void NonEwaldKernel(const int npos,
+                    const double *pos,
+                    const double *rdi,
+                    const int ldm,
+                    double *mat)
+{    
+    // compute tile size
+    int align_dp = detail::kAlignLen/sizeof(double);
+    int tile_size;
+    int num_tiles;   
+    for (int i = 1; i <= align_dp; i++) {
+        if (0 == (3 * i) % align_dp) {
+            tile_size = i;
+        }
+    }
+    num_tiles = (npos + tile_size - 1)/tile_size;    
+    int64_t num_tiles2 = (int64_t)num_tiles * num_tiles;
+    
+    #pragma omp parallel                         
+    {
+        #pragma omp for schedule(dynamic)
+        for (int64_t tile = 0; tile < num_tiles2; tile++) {
+            int starti = (int)(tile/num_tiles) * tile_size;
+            int endi = starti + tile_size;
+            endi = endi < npos ? endi : npos;
+            int startj = (int)(tile%num_tiles) * tile_size;
+            int endj = startj + tile_size;
+            endj = endj < npos ? endj : npos;
+            if (starti > startj) {
+                continue;
+            } 
+            for (int i = starti; i < endi; i++) {
+                const double *pos1 = &(pos[3 * i]);
+                double aa = rdi[i];
+                double aa2 = aa * aa; 
+                int i0 = i * 3;
+                for (int j = startj; j < endj; j++) {
+                    if (i > j) {
+                        continue;
+                    }
+                    const double *pos2 = &(pos[3 * j]);
+                    double ab = rdi[j];
+                    double ab2 = ab * ab;
+                    int j0 = j * 3;
+                    double xa;
+                    double ya;
+                    double ex = 0.0;
+                    double ey = 0.0;
+                    double ez = 0.0;
+                    if (i != j) {               
+                        double xx = pos2[0] - pos1[0];
+                        double yy = pos2[1] - pos1[1];
+                        double zz = pos2[2] - pos1[2];
+                        double rr = xx * xx + yy * yy + zz * zz;
+                        double r = sqrt(rr);
+                        if (r != 0.0) {
+                            ex = xx / r;
+                            ey = yy / r;
+                            ez = zz / r;
+                        }
+                        if (r < (aa + ab)) {
+                            xa = 2.0 / (aa + ab) - 3.0 * r / 8.0 / (aa2 + ab2);
+                            ya = 2.0 / (aa + ab) - 9.0 * r / 16.0 / (aa2 + ab2);
+                        } else {
+                            xa = (1.5 - (aa2 + ab2) * 0.5 / rr) / r;
+                            ya = (0.75 + (aa2 + ab2) * 0.25 / rr) / r;  
+                        }
+                    } else { // self part
+                        xa = ya = 1.0/rdi[i];
+                    }
+                    double ctmp0 = (xa - ya) * ex * ex + ya;
+                    double ctmp1 = (xa - ya) * ex * ey;
+                    double ctmp2 = (xa - ya) * ex * ez;
+                    double ctmp3 = (xa - ya) * ey * ey + ya;
+                    double ctmp4 = (xa - ya) * ey * ez;
+                    double ctmp5 = (xa - ya) * ez * ez + ya;
+                    mat[(i0 + 0) * ldm + j0 + 0] = ctmp0;
+                    mat[(i0 + 0) * ldm + j0 + 1] = ctmp1;
+                    mat[(i0 + 0) * ldm + j0 + 2] = ctmp2;
+                    mat[(i0 + 1) * ldm + j0 + 0] = ctmp1;
+                    mat[(i0 + 1) * ldm + j0 + 1] = ctmp3;
+                    mat[(i0 + 1) * ldm + j0 + 2] = ctmp4;
+                    mat[(i0 + 2) * ldm + j0 + 0] = ctmp2;
+                    mat[(i0 + 2) * ldm + j0 + 1] = ctmp4;
+                    mat[(i0 + 2) * ldm + j0 + 2] = ctmp5;
+                    if (j0 != i0)
+                    {
+                        mat[(j0 + 0) * ldm + i0 + 0] = ctmp0;
+                        mat[(j0 + 0) * ldm + i0 + 1] = ctmp1;
+                        mat[(j0 + 0) * ldm + i0 + 2] = ctmp2;
+                        mat[(j0 + 1) * ldm + i0 + 0] = ctmp1;
+                        mat[(j0 + 1) * ldm + i0 + 1] = ctmp3;
+                        mat[(j0 + 1) * ldm + i0 + 2] = ctmp4;
+                        mat[(j0 + 2) * ldm + i0 + 0] = ctmp2;
+                        mat[(j0 + 2) * ldm + i0 + 1] = ctmp4;
+                        mat[(j0 + 2) * ldm + i0 + 2] = ctmp5;
+                    }
+                }
+            }
+        }
+    }
 }
 
 

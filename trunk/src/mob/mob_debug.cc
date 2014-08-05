@@ -64,17 +64,17 @@ bool MobDebug::Init()
     }
     if (box_size_ <= 0.0) {
         LOG_ERROR("The specified dimension of the simulation box"
-                  " is less than or equal to 0.0: %lf\n", box_size_);
+                  " is less than or equal to 0.0: %g\n", box_size_);
         return false;
     }
     if (tol_ <= 0.0) {
         LOG_ERROR("The specified requested tolerance"
-                  " is less than or equal to 0.0: %lf\n", tol_);
+                  " is less than or equal to 0.0: %g\n", tol_);
         return false;
     }
     if (xi_ <= 0.0) {
         LOG_ERROR("The specified Ewald paramter is less than"
-                  " or equal to 0.0: %lf\n", xi_);
+                  " or equal to 0.0: %g\n", xi_);
         return false;
     }
                    
@@ -85,20 +85,20 @@ bool MobDebug::Init()
             !detail::InitRecipTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
         }
-        fprintf(stdout, "Ewald: rmax = %lf, kmax = %lf, nr = %d nk = %d\n",
+        fprintf(stdout, "Ewald: rmax = %g, kmax = %g, nr = %d nk = %d\n",
             ewald_tbl_->rmax, ewald_tbl_->kmax,
             ewald_tbl_->nr, ewald_tbl_->nk);
     } else if (mode_ == EWALD_REAL) {
         if (!detail::InitRealTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
         }    
-        fprintf(stdout, "Ewald Real: rmax = %lf, nr = %d\n",
+        fprintf(stdout, "Ewald Real: rmax = %g, nr = %d\n",
             ewald_tbl_->rmax, ewald_tbl_->nr);
     } else if (mode_ == EWALD_RECIP) {
         if (!detail::InitRecipTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
         }    
-        fprintf(stdout, "Ewald Recip: kmax = %lf, nk = %d\n",
+        fprintf(stdout, "Ewald Recip: kmax = %g, nk = %d\n",
             ewald_tbl_->kmax, ewald_tbl_->nk);
     }
     

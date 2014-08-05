@@ -6,6 +6,7 @@
 #include <cmath>
 #include "force_steric.h"
 #include "log.h"
+#include "profile.h"
 
 
 namespace stokesdt {
@@ -81,6 +82,11 @@ bool StericForce::Init()
         LOG_ERROR("The steric coefficient is less than or equal to 0.0\n");
         return false;
     }
+    LOG(3, "\n        Initializes StericForce\n");
+    LOG(3, "        -----------------------\n");    
+    LOG(3, "Steric-r0 = %g\n", steric_r0_);
+    LOG(3, "Steric-k0 = %g\n", steric_k0_);
+    
     int nnz = verlet_list_.Init();
     colidx_.reserve(nnz);
 
@@ -90,6 +96,8 @@ bool StericForce::Init()
 
 void StericForce::Accumulate(const double *pos, const double *rdi, double *f)
 {
+   START_TIMER(detail::STERIC_TICKS);
+   
    // update Verlet list
    int nnz = verlet_list_.Build(pos);
    colidx_.reserve(nnz);
@@ -97,6 +105,8 @@ void StericForce::Accumulate(const double *pos, const double *rdi, double *f)
 
    // comput steric forces
    ForceKernel(pos, rdi, f);
+
+   STOP_TIMER(detail::STERIC_TICKS);
 }
 
 } // namespace stokesdt

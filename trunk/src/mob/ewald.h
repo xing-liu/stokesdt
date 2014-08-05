@@ -99,7 +99,14 @@ void EwaldVectorKernel(const double xi, const EwaldTable *ewald_tbl,
                        const double alpha, const int ldf, const double *f,
                        const double beta, const int ldv, double *v,
                        double *v_real, double *v_recip);
-                       
+
+/// Constructs the mobility matrix with free boundary conditions
+void NonEwaldKernel(const int npos,
+                    const double *pos,
+                    const double *rdi,
+                    const int ldm,
+                    double *mat);
+                    
 /// Creates the Ewald tables
 bool CreateEwaldTable(const double xi, const double box_size,
                       const double tol, EwaldTable **p_ewald_tbl);

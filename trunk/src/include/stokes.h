@@ -12,6 +12,7 @@
 #include "stokes_force.h"
 #include "stokes_simbox.h"
 #include "stokes_util.h"
+#include "log.h"
 
 
 #endif // STOKES_H_

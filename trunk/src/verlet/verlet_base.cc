@@ -40,12 +40,12 @@ int VerletListBase::Init()
     }
     if (box_size_ <= 0.0){
         LOG_ERROR("The specified dimension of the simulation box is less than"
-                  "or equal to 0.0: %lf.\n", box_size_);
+                  "or equal to 0.0: %g.\n", box_size_);
         return false;        
     }
     if (cutoff_ <= 0.0){
         LOG_ERROR("The specified dimension of the simulation box is less than"
-                  "or equal to 0.0: %lf.\n", cutoff_);
+                  "or equal to 0.0: %g.\n", cutoff_);
         return false;        
     }
     // get max and min radii
@@ -53,7 +53,7 @@ int VerletListBase::Init()
     min_radius_ = *std::min_element(rdi_.begin(), rdi_.end());
     if (min_radius_ <= 0.0) {
         LOG_ERROR("The specified particle radis is less than"
-                  "or equal to 0.0: %lf.\n", min_radius_);
+                  "or equal to 0.0: %g.\n", min_radius_);
         return false;          
     }
     

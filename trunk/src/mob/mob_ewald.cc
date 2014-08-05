@@ -12,6 +12,7 @@
 #include <mkl.h>
 #include "mob_ewald.h"
 #include "log.h"
+#include "profile.h"
 
 
 namespace stokesdt{
@@ -62,20 +63,26 @@ bool MobEwald::Init()
     }
     if (box_size_ <= 0.0) {
         LOG_ERROR("The specified dimension of the simulation box"
-                  " is less than or equal to 0.0: %lf\n", box_size_);
+                  " is less than or equal to 0.0: %g\n", box_size_);
         return false;
     }
     if (tol_ <= 0.0) {
         LOG_ERROR("The requested tolerance"
-                  " is less than or equal to 0.0: %lf\n", tol_);
+                  " is less than or equal to 0.0: %g\n", tol_);
         return false;
     }
     if (xi_ <= 0.0) {
         LOG_ERROR("The specified Ewald paramter is less than"
-                  " or equal to 0.0: %lf\n", xi_);
+                  " or equal to 0.0: %g\n", xi_);
         return false;
     }
 
+    LOG(3, "\n        Initializes MobEwald\n");
+    LOG(3, "        --------------------\n");
+    LOG(3, "Box-size  = %g\n", box_size_);
+    LOG(3, "Ewald-tol = %g\n", tol_);
+    LOG(3, "Xi        = %g\n", xi_);
+    
     // allocate buffer for the dense mobility matrix
     dim_mob_ = 3 * npos_;
     ldm_ = detail::PadLen(dim_mob_, sizeof(double));
@@ -97,12 +104,16 @@ bool MobEwald::Init()
 
 void MobEwald::Update(const double *pos, const double *rdi)
 {
+    START_TIMER(detail::MOB_TICKS);
+    
     if (ewald_tbl_ != NULL) {
         detail::EwaldKernel(xi_, ewald_tbl_, box_size_, npos_,
                             pos, rdi, ldm_, mat_, NULL, NULL);
     } else {
         LOG_WARN("The MobEwald is not properly initialized\n");
     }
+    
+    STOP_TIMER(detail::MOB_TICKS);
 }
 
 
@@ -114,6 +125,8 @@ void MobEwald::MulVector(const int num_rhs,
                          const int ldv,
                          double *v)
 {
+    START_TIMER(detail::MOB_TICKS);
+    
     if (num_rhs == 1){ // single vector
         cblas_dsymv(CblasRowMajor, CblasUpper,
                     dim_mob_, alpha, mat_, ldm_,
@@ -123,6 +136,8 @@ void MobEwald::MulVector(const int num_rhs,
                     dim_mob_, num_rhs, alpha, mat_, ldm_, f, ldf,
                     beta, v, ldv);            
     }
+
+    STOP_TIMER(detail::MOB_TICKS);
 }
 
 

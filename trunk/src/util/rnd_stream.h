@@ -24,7 +24,7 @@ class RndStream {
      *
      * @param[in] seed  the seed used for generating random numbers
      */
-    RndStream(const unsigned int seed);
+    explicit RndStream(const unsigned int seed);
 
     /// Class deconstructor
     virtual ~RndStream();

@@ -7,6 +7,7 @@
 #include "brwn_chol.h"
 #include "mob_matrix.h"
 #include "log.h"
+#include "profile.h"
 
 
 namespace stokesdt {
@@ -30,6 +31,10 @@ bool BrwnChol::Init()
         LOG_ERROR("The specified dimension is less than or equal to 0.\n");
         return false;
     }
+
+    LOG(3, "\n        Initializes BrwnChol\n");
+    LOG(3, "        --------------------\n");
+    LOG(3, "Dim = %d\n", dim_);
     
     // allocate buffer for the cholesky factor L
     ldm_ = detail::PadLen(dim_, sizeof(double));   
@@ -48,6 +53,8 @@ void BrwnChol::Compute(MobBase *mob, const int num_rhs,
                        const int ldz, const double *z,
                        const int ldy, double *y)
 {
+    START_TIMER(detail::BRWN_TICKS);
+    
     // get the mobility matrix
     MobMatrix *mobmatrix = (MobMatrix *)mob;
     mobmatrix->GetMatrix(ldm_, cholmat_);
@@ -73,6 +80,8 @@ void BrwnChol::Compute(MobBase *mob, const int num_rhs,
                     CblasNoTrans, CblasNonUnit,
                     dim_, num_rhs, 1.0, cholmat_, ldm_, y, ldy); 
     }
+
+    STOP_TIMER(detail::BRWN_TICKS);
 }
 
 } // namespace stokesdt

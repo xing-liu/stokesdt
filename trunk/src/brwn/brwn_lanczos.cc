@@ -8,6 +8,7 @@
 #include <cstring>
 #include "brwn_lanczos.h"
 #include "log.h"
+#include "profile.h"
 
 
 namespace stokesdt {
@@ -239,9 +240,16 @@ bool BrwnLanczos::Init()
     }
     if (max_nrhs_ > dim_/3) {
         LOG_WARN("The specified max_nrhs (%d) is too large."
-                 " Set max_nrhs to %d.\n", max_nrhs_);        
+                 " Set max_nrhs to %d.\n", max_nrhs_, dim_/3);        
         max_nrhs_ = dim_/3;       
     }
+
+    LOG(3, "\n        Initializes BrwnLanczos\n");
+    LOG(3, "        -----------------------\n");
+    LOG(3, "Dim       = %d\n", dim_);
+    LOG(3, "Max-iters = %d\n", max_iters_);
+    LOG(3, "Max-nrhs  = %d\n", max_nrhs_);
+    LOG(3, "Tol       = %g\n", tol_);
 
     // allocate buffer for the Krylov sequence
     ldv_ = detail::PadLen(dim_, sizeof(double));
@@ -261,6 +269,8 @@ void BrwnLanczos::Compute(MobBase *mob, const int num_rhs,
                           const int ldz, const double *z,
                           const int ldy, double *y)
 {
+    START_TIMER(detail::BRWN_TICKS);
+    
     // compute in groups
     for (int irhs = 0; irhs < num_rhs; irhs += max_nrhs_)
     {
@@ -279,6 +289,8 @@ void BrwnLanczos::Compute(MobBase *mob, const int num_rhs,
             LOG(3, "Computed Lanczos (%d vectors): NOT converged\n", nrhs);
         }
     }
+
+    START_TIMER(detail::BRWN_TICKS);
 }
 
 } // namespace stokesdt

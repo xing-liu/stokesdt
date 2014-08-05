@@ -19,6 +19,7 @@ class ForceBase;
 class RndStream;
 class MobBase;
 class BrwnBase;
+class MoleculeIO;
 
 enum MobMethod {
     MOB_EWALD    = 0,
@@ -47,13 +48,22 @@ class BDSimBox : public SimBoxBase {
     void Advance(int nsteps);
         
   private:
-    /// Disable copy constructor and assignement operator
     DISALLOW_COPY_AND_ASSIGN(BDSimBox);
+
+    bool ImportMolecule();
+
+    bool InitMob();
+
+    bool InitBrwn();
+
+    bool InitForces();
 
   private:
     std::string config_file_;
     std::string model_file_;
     std::string xyz_file_;
+    MoleculeIO *mol_io_;
+    
     double delta_t_;    
     int npos_;
     double Lx_;
@@ -69,19 +79,19 @@ class BDSimBox : public SimBoxBase {
     double start_time_;
     int istep_;
     double cur_time_;
-
-    // stats
     int traj_interval_;
     int traj_start_;
     std::ofstream traj_fs_;
     
     MobBase *mob_;
     int dim_mob_;
-    std::vector<ForceBase *> force_;
+    int ldm_;
     BrwnBase *brwn_;
     RndStream *rnd_stream_;
     double *brwn_vec_;
     double *disp_vec_;
+
+    std::vector<ForceBase *> force_;    
 };
 
 } // namespace stokesdt
