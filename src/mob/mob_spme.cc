@@ -10,7 +10,7 @@
 #include "ewald.h"
 #include "mob_spme.h"
 #include "log.h"
-#include "matrix_io.h"
+#include "profile.h"
 
 
 namespace stokesdt {
@@ -55,17 +55,17 @@ bool MobSpme::Init()
     }
     if (box_size_ <= 0.0) {
         LOG_ERROR("The specified dimension of simulation box is"
-                  " less than or euqal to 0.0: %lf.\n", box_size_);
+                  " less than or euqal to 0.0: %g.\n", box_size_);
         return false;
     }
     if (rmax_ <= 0.0) {
         LOG_ERROR("The specified real-space cutoff is less"
-                  " than or euqal to 0.0: %lf.\n", rmax_);
+                  " than or euqal to 0.0: %g.\n", rmax_);
         return false;
     }
     if (xi_ <= 0.0) {
         LOG_ERROR("The specified Ewald paramter is less than"
-                  " or euqal to 0.0: %lf.\n", xi_);
+                  " or euqal to 0.0: %g.\n", xi_);
         return false;
     }
     if (dim_ <= 0) {
@@ -78,7 +78,15 @@ bool MobSpme::Init()
                   " be 4, 6 or 8: %d.\n", porder_);
         return false;
     }      
-                 
+
+    LOG(3, "\n        Initializes MobSpme\n");
+    LOG(3, "        -------------------\n");
+    LOG(3, "Box-size = %g\n", box_size_);
+    LOG(3, "Xi       = %g\n", xi_);
+    LOG(3, "Rmax     = %g\n", rmax_);
+    LOG(3, "Dim      = %d\n", dim_);
+    LOG(3, "Porder   = %d\n", porder_);
+        
     dim_mob_ = 3 * npos_;
     if (!detail::CreateSpmeEngine(npos_, box_size_, xi_,
                                   dim_, porder_, &spme_)) {
@@ -169,14 +177,18 @@ void MobSpme::BuildSparseReal(const double *pos, const double *rdi)
 
 void MobSpme::Update(const double *pos, const double *rdi)
 {
+    START_TIMER(detail::MOB_TICKS);
+    
     detail::UpdateSpmeEngine(pos, rdi, spme_);
     int nnz = verlet_list_.Build(pos);
-    ResizeSparseMatrix(nnz, real_mat_);
+    detail::ResizeSparseMatrix(nnz, real_mat_);
     verlet_list_.GetPairs(real_mat_->rowbptr, real_mat_->colbidx);
     BuildSparseReal(pos, rdi);
     int nm = dim();
     double *mat = (double *)malloc(sizeof(double) * nm * nm);
-    SparseToDense(real_mat_, nm, mat);
+    detail::SparseToDense(real_mat_, nm, mat);
+
+    STOP_TIMER(detail::MOB_TICKS);
 }
 
 
@@ -188,11 +200,15 @@ void MobSpme::MulVector(const int num_rhs,
                         const int ldvec_out,
                         double *vec_out)
 {
+    START_TIMER(detail::MOB_TICKS);
+    
     detail::ComputeSpmeRecip(spme_, num_rhs,
                              alpha, ldvec_in, vec_in,
                              beta, ldvec_out, vec_out);
-    SpMV3x3(real_mat_, num_rhs, alpha, ldvec_in, vec_in,
-            1.0, ldvec_out, vec_out);
+    detail::SpMV3x3(real_mat_, num_rhs, alpha, ldvec_in, vec_in,
+                    1.0, ldvec_out, vec_out);
+
+    STOP_TIMER(detail::MOB_TICKS);
 }
 
 

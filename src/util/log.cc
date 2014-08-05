@@ -3,25 +3,26 @@
  * @brief  Logger implementation
  */
  
-#ifdef ENABLE_LOG_
 
 #include "log.h"
 
 
-/// Log level
+namespace stokesdt {
+
+namespace detail {
+
+/// the log level
 int log_level = 3;
-/// Log file
+/// the log file
 FILE *fp_log = NULL;
 
+} // namespace detail
 
-/** @brief Initialize the logger
- *
- *  @param[in] file  log file name 
- */
+
 bool InitLogger(char *file)
 {
-    fp_log = fopen(file, "w+");
-    if (NULL == fp_log) {
+    detail::fp_log = fopen(file, "w+");
+    if (NULL == detail::fp_log) {
         fprintf(stderr, "Can't open %s\n", file);
         return false;
     }
@@ -30,13 +31,18 @@ bool InitLogger(char *file)
 }
 
 
-/** @brief Destroy the logger
- */
-void DeinitLogger()
+void DestroyLogger()
 {
-    if (fp_log != NULL) {
-        fclose(fp_log);
+    if (detail::fp_log != NULL) {
+        fclose(detail::fp_log);
     }
 }
 
-#endif // ENABLE_LOG_ 
+
+void SetLoggerLevel(int level)
+{
+    detail::log_level = level;
+}
+
+
+} // namespace stokesdt

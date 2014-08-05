@@ -29,7 +29,7 @@ class BrwnChol : public BrwnBase {
      *
      * @param[in] dim  the dimesnion of the MobBase instance to be computed
      */
-    BrwnChol(const int dim);
+    explicit BrwnChol(const int dim);
 
     /// \copydoc  BrwnBase::~BrwnBase()
     virtual ~BrwnChol();

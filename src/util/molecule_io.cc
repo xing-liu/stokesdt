@@ -61,7 +61,7 @@ bool MoleculeIO::ParseConfig(const char *config_file,
                 str_key.assign(key);
                 str_value.assign(value);
                 if (key_map_.find(str_key) == key_map_.end()) {
-                    key_map_[str_key] = str_value;    
+                    key_map_[str_key] = str_value;
                 } else {
                     LOG_ERROR("Duplicate keys (%s) found in %s\n",
                         key, config_file);
@@ -141,7 +141,7 @@ bool MoleculeIO::ParseXYZ(const char *xyz_file,
     map<string, double> par_map;
     string str_line;
     string str_par;
-    char type[128];
+    char type[kMaxTypeLen];
     for (int i = 0; i < num_types; i++) {
         double radius;
         str_line = GetLine("par", i);
@@ -179,10 +179,12 @@ bool MoleculeIO::ParseXYZ(const char *xyz_file,
     } else {
         LOG_ERROR("Invalid XYZ file %s\n", xyz_file);
         return false;
-    }    
+    }
+    
     // read pos and rdi 
     pos_.clear();
-    rdi_.clear(); 
+    rdi_.clear();
+    ptype_.clear();
     while (fgets(line, detail::kMaxLine, fp) != NULL) {
         double x;
         double y;
@@ -192,6 +194,7 @@ bool MoleculeIO::ParseXYZ(const char *xyz_file,
             continue;
         }
         str_par.assign(type);
+        ptype_.push_back(str_par);
         pos_.push_back(x);
         pos_.push_back(y);
         pos_.push_back(z);
@@ -242,15 +245,15 @@ double MoleculeIO::GetFloatKey(const char *key,
 {
     string str_key(key);
     
-    if (key_map_.find(str_key) != key_map_.end()) { // key not found
-        LOG_WARN("Key \"%s\" not found. Use default value: %d\n",
+    if (key_map_.find(str_key) == key_map_.end()) { // key not found
+        LOG_WARN("Key \"%s\" not found. Use default value: %g\n",
                  key, default_value);
         return default_value;
     } else {
         double ret = atof(key_map_[str_key].c_str());
         if (ret >= max_value || ret <= min_value) {
-            LOG_WARN("Key \"%s\" (%lf) not in the range (%lf %lf). "
-                     "Use default value: %lf\n",
+            LOG_WARN("Key \"%s\" (%g) not in the range (%g %g). "
+                     "Use default value: %g\n",
                      key, ret, min_value, max_value, default_value);
             return default_value;
         } else {
@@ -267,14 +270,14 @@ int MoleculeIO::GetIntKey(const char *key,
 {
     string str_key(key);
     
-    if (key_map_.find(str_key) != key_map_.end()) { // key not found
+    if (key_map_.find(str_key) == key_map_.end()) { // key not found
         LOG_WARN("Key \"%s\" not found. Use default value: %d\n",
                  key, default_value);
         return default_value;
     } else {
         int ret = atoi(key_map_[str_key].c_str());
         if (ret > max_value || ret < min_value) {
-            LOG_WARN("Key \"%s\" (%lf) not in the range [%d %d]. "
+            LOG_WARN("Key \"%s\" (%d) not in the range [%d %d]. "
                      "Use default value: %d\n",
                      key, ret, min_value, max_value, default_value);
             return default_value;
@@ -290,7 +293,7 @@ bool MoleculeIO::GetBoolKey(const char *key,
 {
     string str_key(key);
 
-    if (key_map_.find(str_key) != key_map_.end()) { // key not found
+    if (key_map_.find(str_key) == key_map_.end()) { // key not found
         LOG_WARN("Key \"%s\" not found. Use default value: %s\n",
                  key, (default_value ? "true" : "false"));
         return default_value;        
@@ -350,4 +353,48 @@ void MoleculeIO::GetParticles(double *pos, double *rdi)
     memcpy(rdi, &rdi_[0], sizeof(double) * npos);
 }
 
+
+void MoleculeIO::GetParticles(double *pos, double *rdi,
+                              char *ptype[kMaxTypeLen])
+{    
+    int npos = ptype_.size();
+    for (int i = 0; i < npos; i++) {
+        strcpy(ptype[i], ptype_[i].c_str());
+    }
+    GetParticles(pos, rdi);
+}
+
+
+void MoleculeIO::WriteXYZ(const int npos,
+                          const double Lx,
+                          const double Ly,
+                          const double Lz,
+                          const int start_frame,
+                          const double start_time,
+                          const char *ptype[kMaxTypeLen],
+                          const double *pos,
+                          const double *rdi,
+                          FILE* fp)
+{
+    fprintf(fp, "%d\n", npos);
+    fprintf(fp, "%d %g %g %.10g %.10g\n",
+        start_frame, start_time, Lx, Ly, Lz);
+    for (int i = 0; i < npos; i++) {
+        fprintf(fp, "%s %.10g %.10g %.10g\n", ptype[i],
+            pos[i * 3 + 0], pos[i * 3 + 1], pos[i * 3 + 2]);
+    }
+}
+
+
+void MoleculeIO::WriteXYZ(const int npos,
+                          const double box_size,
+                          const char *ptype[kMaxTypeLen],
+                          const double *pos,
+                          const double *rdi,
+                          FILE* fp)
+{
+    WriteXYZ(npos, box_size, box_size, box_size,
+             0, 0.0, ptype, pos, rdi, fp);
+}
+    
 } // namespace stokesdt

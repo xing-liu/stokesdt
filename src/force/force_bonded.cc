@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "force_bonded.h"
 #include "log.h"
+#include "profile.h"
 
 
 namespace stokesdt {
@@ -40,6 +41,9 @@ bool BondedForce::Init()
     int npos = get_npos();
     rowptr_.assign (npos + 1, 0);
     int num_bonds = bonds_.size();
+    LOG(3, "\n        Initializes BondedForce\n");
+    LOG(3, "        -----------------------\n");    
+    LOG(3, "number-bonds = %d\n", num_bonds);
     for (int i = 0; i < num_bonds; i++) {
         int id_a = std::get<0>(bonds_[i]);
         int id_b = std::get<1>(bonds_[i]);
@@ -48,7 +52,7 @@ bool BondedForce::Init()
         if (id_a < 0 || id_a >= npos ||
             id_b < 0 || id_b >= npos ||
             r0 <= 0.0 || k0 <= 0.0) {
-            LOG_ERROR("The bond is invalid: <%d, %d, %lf, %lf>\n",
+            LOG_ERROR("The bond is invalid: <%d, %d, %g, %g>\n",
                 id_a, id_b, r0, k0);
             return false;
         } else {
@@ -90,6 +94,8 @@ bool BondedForce::Init()
 
 void BondedForce::Accumulate(const double *pos, const double *rdi, double *f)
 {
+    START_TIMER(detail::BONDED_TICKS);
+    
     int npos = get_npos();
     #pragma omp parallel for
     for (int i = 0; i < npos; i++) {
@@ -123,6 +129,8 @@ void BondedForce::Accumulate(const double *pos, const double *rdi, double *f)
             f[3 * i + 2] +=  force1 * ez;
         }
     }
+
+    STOP_TIMER(detail::BONDED_TICKS);
 }
 
 } //namespace stokesdt

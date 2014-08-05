@@ -7,92 +7,62 @@
 #define LOG_H_
 
 
-#ifdef ENABLE_LOG_
-
-
-#include <string>
-
-class Logger{
-  public:
-    static Logger* Instance();
-    bool openLogFile(std::string logFile);
-    void writeToLogFile();
-    bool closeLogFile();
- private:
-   Logger(){};  // Private so that it can  not be called
-   Logger(Logger const&){};             // copy constructor is private
-   Logger& operator=(Logger const&){};  // assignment operator is private
-   static Logger* m_pInstance;
-};
-
-
-#include <stddef.h>
-#include "logger.h"
-
-// Global static pointer used to ensure a single instance of the class.
-Logger* Logger::m_pInstance = NULL; 
- 
-Logger* Logger::Instance()
-{
-   if (!m_pInstance)   // Only allow one instance of class to be generated.
-      m_pInstance = new Logger;
- 
-   return m_pInstance;
-}
-
-bool Logger::openLogFile(std::string _logFile)
-{
-
-}
-
-
 #include <cstdio>
 
+
+namespace stokesdt {
+
+namespace detail {
+
+/// the log level
 extern int log_level;
+/// the log file
 extern FILE *fp_log;
 
-/// Log a message
-#define LOG(level, fmt, args...)                             \
-        do {                                                 \
-            if (level <= log_level && fp_log != NULL) {      \
-                fprintf(fp_log, fmt, ##args);                \
-                fflush(fp_log);                              \
-            }                                                \
-        } while (0)
-        
-/// Log an error        
-#define LOG_ERROR(fmt, args...)                              \
-        do {                                                 \
-            if (fp_log != NULL) {                            \
-                fprintf(fp_log, "%s:%d: %s(): "fmt, __FILE__,\
-                    __LINE__, __func__, ##args);             \
-                fflush(fp_log);                              \
-            }                                                \
-            fprintf(stderr, "%s:%d: %s(): "fmt, __FILE__,    \
-                __LINE__, __func__, ##args);                 \
-            fflush(stderr);                                  \
-        } while (0)
+} // namespace detail
 
+/** 
+ * @brief   Initializes the logger
+ * @param[in] file  the log file name 
+ */
 bool InitLogger(char *file);
 
-void DeinitLogger();            
-        
-#else
-/// Log a message
-#define LOG(level, fmt, args...)
+/// @brief  Destroys the logger
+void DestroyLogger();
 
-/// Log an error 
-#define LOG_ERROR(fmt, args...)                              \
-        do {                                                 \
-            fprintf(stderr, "%s:%d: %s(): "fmt, __FILE__,    \
-                    __LINE__, __func__, ##args);             \
-            fflush(stderr);                                  \
+/// @brief  Sets the log level
+void SetLoggerLevel(int level);
+
+
+} // namespace stokesdt
+
+
+/// Write a message into the log file
+#define LOG(level, fmt, args...)                                  \
+        do {                                                      \
+            if (level <= stokesdt::detail::log_level &&           \
+                stokesdt::detail::fp_log != NULL) {               \
+                fprintf(stokesdt::detail::fp_log, fmt, ##args);   \
+                fflush(stokesdt::detail::fp_log);                 \
+            }                                                     \
         } while (0)
         
-#endif // #ifdef ENABLE_LOG_
+/// Write an error message into the log file      
+#define LOG_ERROR(fmt, args...)                                   \
+        do {                                                      \
+            if (stokesdt::detail::fp_log != NULL) {               \
+                fprintf(stokesdt::detail::fp_log,                 \
+                        "ERROR: %s:%d: %s(): "fmt, __FILE__,      \
+                        __LINE__, __func__, ##args);              \
+                fflush(stokesdt::detail::fp_log);                 \
+            }                                                     \
+            fprintf(stderr, "ERROR: %s:%d: %s(): "fmt, __FILE__,  \
+                __LINE__, __func__, ##args);                      \
+            fflush(stderr);                                       \
+        } while (0)
 
-
-#define LOG_WARN(fmt, args...)  LOG(1, fmt, ##args); 
+/// Write an warning message into the log file   
+#define LOG_WARN(fmt, args...)  LOG(1, "WARNING: "fmt, ##args);
 
         
 #endif // LOG_H_

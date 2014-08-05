@@ -22,6 +22,9 @@ namespace stokesdt{
  */
 class MoleculeIO {
   public:
+    /// the maximum length the type string
+    enum { kMaxTypeLen = 16 };
+        
     /// Class constructor
     MoleculeIO();
 
@@ -69,16 +72,42 @@ class MoleculeIO {
     /// Reads particles
     void GetParticles(double *pos, double *rdi);
 
+    /// Reads particles returning ptype
+    void GetParticles(double *pos, double *rdi,
+                      char *ptype[kMaxTypeLen]);
+
+    /// Writes a XYZ file specifying start_frame, start_time
+    void WriteXYZ(const int npos,
+                  const double Lx,
+                  const double Ly,
+                  const double Lz,
+                  const int start_frame,
+                  const double start_time,
+                  const char *ptype[kMaxTypeLen],
+                  const double *pos,
+                  const double *rdi,
+                  FILE* fp);
+
+    /// Export a XYZ file
+    void WriteXYZ(const int npos,
+                  const double box_size,
+                  const char *ptype[kMaxTypeLen],
+                  const double *pos,
+                  const double *rdi,
+                  FILE* fp);
+   
   private:
     DISALLOW_COPY_AND_ASSIGN(MoleculeIO);
 
-  private:
+  private:    
     /// the map storing keys and values
     std::map<std::string, std::string> key_map_;
     /// the map storing lines
     std::multimap<std::string, std::string> line_map_;
     /// the array of particle coordinates
     std::vector<double> pos_;
+    /// the array of particle types
+    std::vector<std::string> ptype_;
     /// the array of particle radii
     std::vector<double> rdi_;
 };

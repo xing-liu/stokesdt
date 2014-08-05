@@ -14,6 +14,7 @@ CXXFLAGS += -std=c++11
 CXXFLAGS += -Wsign-compare -Wunknown-pragmas -Wreturn-type
 CXXFLAGS += -Wunused-variable -Wuninitialized -Wmissing-prototypes -Wmissing-declarations
 CXXFLAGS += -no-offload
+CXXFLAGS += -DENABLE_PROFILE_
 
 CP    = cp -f
 RM    = rm -f
