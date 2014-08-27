@@ -83,9 +83,9 @@ bool BDSimBox::InitMob()
 {
     // create mobility matrix
     const char* str_mob = mol_io_->GetStringKey("mob-method");
-    if (str_mob == "ewald") {
+    if (strcmp(str_mob, "ewald") == 0) {
         mob_method_ = MOB_EWALD;
-    } else if (str_mob == "spme") {
+    } else if (strcmp(str_mob, "spme") == 0) {
         mob_method_ = MOB_SPME;
     } else {
         mob_method_ = MOB_EWALD;
@@ -123,9 +123,9 @@ bool BDSimBox::InitBrwn()
 {
     // create Brownian
     const char* str_brwn = mol_io_->GetStringKey("brownian-method");
-    if (str_brwn == "chol" == 0) {
+    if (strcmp(str_brwn, "chol") == 0) {
         brwn_method_ = BRWN_CHOL;
-    } else if (str_brwn == "lanczos" == 0) {
+    } else if (strcmp(str_brwn, "lanczos") == 0) {
         brwn_method_ = BRWN_LANCZOS;
     } else {
         brwn_method_ = BRWN_CHOL;
@@ -282,7 +282,7 @@ void BDSimBox::Advance(int nsteps)
     __declspec(align(detail::kAlignLen)) double f[ldm_];
     for (int i = 0; i < nsteps; i++)
     {
-        LOG(3, "Start step %10d, ", istep_);
+        LOG(3, "Start step %10d\n", istep_);
         gettimeofday (&tv1, NULL);
         // each mob interval
         if (istep_ % mob_interval_ == 0)
@@ -321,7 +321,7 @@ void BDSimBox::Advance(int nsteps)
         gettimeofday (&tv2, NULL);
         timersub (&tv2, &tv1, &tv1);
         double timepass = tv1.tv_sec + tv1.tv_usec/1e6;
-        LOG(3, "Elapsed time: %.3le secs\n\n", timepass);    
+        LOG(3, "    Elapsed time: %.3le secs\n", timepass);    
     }        
 }
 

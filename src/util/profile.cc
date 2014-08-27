@@ -1,3 +1,8 @@
+/**
+ * @file   profile.cc
+ * @brief  Profiler implementation
+ */
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

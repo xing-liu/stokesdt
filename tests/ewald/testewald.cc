@@ -51,10 +51,10 @@ int main(int argc, char **argv)
                 ref_file = strdup(optarg);
                 break;
             case ':':
-                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
                 return -1;
             case '?':
-                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                fprintf(stderr, "Unknown option `-%c'.\n", optopt);
                 return -1;
             default:
                 usage (argv[0]);
@@ -67,8 +67,8 @@ int main(int argc, char **argv)
         usage(argv[0]);
         return -1;
     }
-    fprintf (stdout, "\nTest Ewald summation\n");
-    fprintf (stdout, "--------------------\n");
+    fprintf(stdout, "\nTest Ewald summation\n");
+    fprintf(stdout, "--------------------\n");
     
     // input particles
     MoleculeIO * parser = new MoleculeIO();

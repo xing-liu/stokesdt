@@ -21,11 +21,11 @@ const char *const short_options = ":h";
 
 static void usage (char *call)
 {
-    fprintf (stderr, "Usage: %s [OPTIONS]\n", call);
-    fprintf (stderr, "Options:\n");
-    fprintf (stderr, "\t-h or --help         Display this information\n");
-    fprintf (stderr, "\t--model              Model file\n");
-    fprintf (stderr, "\t--xyz                XYZ file\n");
+    fprintf(stderr, "Usage: %s [OPTIONS]\n", call);
+    fprintf(stderr, "Options:\n");
+    fprintf(stderr, "\t-h or --help         Display this information\n");
+    fprintf(stderr, "\t--model              Model file\n");
+    fprintf(stderr, "\t--xyz                XYZ file\n");
 }
 
 int main(int argc, char **argv)
@@ -47,10 +47,10 @@ int main(int argc, char **argv)
                 xyz_file = strdup(optarg);
                 break;
             case ':':
-                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
                 return -1;
             case '?':
-                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                fprintf(stderr, "Unknown option `-%c'.\n", optopt);
                 return -1;
             default:
                 usage (argv[0]);
@@ -63,8 +63,8 @@ int main(int argc, char **argv)
         return -1;
     }
     
-    fprintf (stdout, "\nTest Lanczos\n");
-    fprintf (stdout, "-------------\n");
+    fprintf(stdout, "\nTest Lanczos\n");
+    fprintf(stdout, "-------------\n");
     
     // input particles
     MoleculeIO * parser = new MoleculeIO();

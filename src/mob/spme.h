@@ -32,9 +32,11 @@ typedef struct SpmeEngine {
     double xi;
     /// the number of particles
     int npos;
+    /// the array of square of particle radii
+    double *rdi2;
     /// the dimension of the simulation box
     double box_size;
-
+    
     /// the interpolation order
     int porder; 
     /// the matrix P (in sparse format), \c porder^3 * np
@@ -49,7 +51,7 @@ typedef struct SpmeEngine {
     /// the pointer to the influence map
     double *map;
     /// the array of Ewald factors
-    double *lm2;    
+    double *lm2;
     
     /// the dimension of independent sets    
     int nb;
@@ -83,15 +85,6 @@ typedef struct SpmeEngine {
 #pragma offload_attribute(push, target(mic))
 #endif
 
-const double tab_splines[6][5] = {
-  {0.0},
-  {0.0},
-  {0.0},
-  {1.0/6.0, 4.0/6.0, 1.0/6.0},
-  {0.0},
-  {1.0/120.0, 26.0/120.0, 66.0/120.0, 26.0/120.0, 1.0/120.0}
-};
-
 
 const double tab_W[6][6*6]= {
   {0.0},
@@ -111,18 +104,21 @@ const double tab_W[6][6*6]= {
 };
 
 
+inline size_t FFTPadLen(size_t len, size_t size)
+{
+    size_t len0 = kAlignLen/size;
+    return ((((len + len0 - 1)/len0) | 1) * len0);
+}
+
+
 inline double ScalarRecip(const double k,
-                          const double xi,
-                          const double aa,
-                          const double ab)
+                          const double xi)
 {
     double kx = k / xi;
     double kx2 = kx * kx;
     double k2 = k * k;
-    double aa2 = aa*aa;
-    double ab2 = ab*ab;
-    double v = 6.0 * M_PI * exp(-kx2/4.0)
-        * (1.0 - k2*(aa2+ab2)/6.0) / k2 * (1.0 + kx2 * (1.0/4.0 + kx2/8.0));
+    double v = 6.0 * M_PI * exp(-kx2/4.0) / k2 
+        * (1.0 + kx2 * (1.0/4.0 + kx2/8.0));
     return v;
 }
 
@@ -229,7 +225,8 @@ inline void InterpolateKernel(const int porder3,
                               const double beta,
                               double *vels)
 {
-    double tmp[detail::kAlignLen/sizeof(double)] __attribute__((aligned(detail::kAlignLen)));   
+    __declspec(align(detail::kAlignLen))
+        double tmp[detail::kAlignLen/sizeof(double)];
 #if defined(__MIC__)
     __m512d vv0 = _mm512_set1_pd(0.0);
     __m512d vv1 = _mm512_set1_pd(0.0);
@@ -310,6 +307,7 @@ inline void SpreadKernel(const int porder3,
 
 /// Creates a SPME engine
 bool CreateSpmeEngine(const int npos,
+                      const double *rdi,
                       const double box_size,
                       const double xi,
                       const int dim,
@@ -330,7 +328,7 @@ void ComputeSpmeRecip(const SpmeEngine *spme,
                       double *vec_out);
 
 /// Updates the particles and reconstruct the P matrix   
-void UpdateSpmeEngine(const double *pos, const double *rdi, SpmeEngine *spme);
+void UpdateSpmeEngine(const double *pos, SpmeEngine *spme);
 
 } // namespace stokesdt
 

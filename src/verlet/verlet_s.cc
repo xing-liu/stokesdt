@@ -80,7 +80,7 @@ int VerletListS::InitPairs(const double *rdi,
     double min_radius = get_min_radius();
     
     int nnz = 0;
-    (*pairs).reserve(npos);
+    (*pairs).resize(npos);
     for (int i = 0; i < npos; i++) {
         double t1 = (rdi[i] + max_radius)*cutoff/2.0 + max_radius;
         t1 = pow(t1, 3.0);
@@ -113,7 +113,7 @@ int VerletListS::FindPairs(const double *pos,
         const std::vector<int> &head = get_head();
         const std::vector<int> &next = get_next();
         const std::vector<size_t> &cidx = get_cidx();
-        size_t nc2 = nc1 * nc1;
+        size_t nc2 = (size_t)nc1 * nc1;
         // for each cell list
         #pragma omp for reduction(+:nnz)
         for (int i = 0; i < npos; i++) {

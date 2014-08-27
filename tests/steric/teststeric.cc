@@ -106,10 +106,10 @@ int main(int argc, char **argv)
                 k0 = atof(optarg);
                 break;                
             case ':':
-                fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+                fprintf(stderr, "Option -%c requires an argument.\n", optopt);
                 return -1;
             case '?':
-                fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+                fprintf(stderr, "Unknown option `-%c'.\n", optopt);
                 return -1;
             default:
                 usage (argv[0]);

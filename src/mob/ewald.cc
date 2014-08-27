@@ -643,7 +643,7 @@ void NonEwaldKernel(const int npos,
 bool InitRealTable(const double xi, const double box_size,
                    const double tol, EwaldTable *tbl)
 {
-    tbl->rmax = XitoRmax(xi, tol, box_size, 1.15); 
+    tbl->rmax = XitoRmax(xi, tol, box_size, 1.15);
     std::vector<double> rlx_tbl;
     std::vector<double> rly_tbl;
     std::vector<double> rlz_tbl;
@@ -800,7 +800,7 @@ bool InitRecipTable(const double xi, const double box_size,
 bool CreateEwaldTable(const double xi, const double box_size,
                       const double tol, EwaldTable **p_ewald_tbl)
 {
-    EwaldTable *tbl = new EwaldTable;
+    EwaldTable *tbl = new EwaldTable();
     InitRealTable(xi, box_size, tol, tbl);
     InitRecipTable(xi, box_size, tol, tbl);
     *p_ewald_tbl = tbl;
