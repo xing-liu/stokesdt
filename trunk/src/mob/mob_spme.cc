@@ -7,6 +7,7 @@
 #include <cmath>
 #include <omp.h>
 #include <mkl.h>
+#include <algorithm>
 #include "ewald.h"
 #include "mob_spme.h"
 #include "log.h"
@@ -28,7 +29,8 @@ MobSpme::MobSpme(const int npos,
       rmax_(rmax),
       dim_(dim),
       porder_(porder),
-      verlet_list_(npos, rdi, box_size, rmax)
+      verlet_list_(npos, rdi, box_size, rmax),
+      rdi_(rdi, rdi + npos)
 {
 
 }
@@ -72,12 +74,12 @@ bool MobSpme::Init()
         LOG_ERROR("The specified dimension of FFT mesh"
                   " less than or euqal to 0: %d.\n", dim_);
         return false;
-    }    
-    if (porder_ != 4 && porder_ != 6 && porder_ != 8) {
-        LOG_ERROR("The specified interpolation order can only"
-                  " be 4, 6 or 8: %d.\n", porder_);
+    }
+    if (porder_  <= 1) {
+        LOG_ERROR("The specified interpolation order is"
+                  " less than or equal to 1: %d.\n", porder_);
         return false;
-    }      
+    }
 
     LOG(3, "\n        Initializes MobSpme\n");
     LOG(3, "        -------------------\n");
@@ -86,17 +88,29 @@ bool MobSpme::Init()
     LOG(3, "Rmax     = %g\n", rmax_);
     LOG(3, "Dim      = %d\n", dim_);
     LOG(3, "Porder   = %d\n", porder_);
-        
+
     dim_mob_ = 3 * npos_;
-    if (!detail::CreateSpmeEngine(npos_, box_size_, xi_,
-                                  dim_, porder_, &spme_)) {
-        LOG_ERROR("Creating Spme failed\n");
-        return false;
+    double max_radius = *std::max_element(rdi_.begin(), rdi_.end());
+    double min_radius = *std::min_element(rdi_.begin(), rdi_.end());
+    if (max_radius != 1.0 || min_radius != 1.0) {
+        printf("xixi\n");
+        if (!detail::CreateSpmeEngine(npos_, &rdi_[0], box_size_, xi_,
+                                      dim_, porder_, &spme_)) {
+            LOG_ERROR("Creating Spme failed\n");
+            return false;
+        }
+    } else {
+        printf("NULL\n");
+        if (!detail::CreateSpmeEngine(npos_, NULL, box_size_, xi_,
+                                      dim_, porder_, &spme_)) {
+            LOG_ERROR("Creating Spme failed\n");
+            return false;
+        }
     }
 
     int init_nnzb = verlet_list_.Init();
 
-    if (!CreateSparseMatrix(npos_, init_nnzb, 3, &real_mat_)) {
+    if (!detail::CreateSparseMatrix(npos_, init_nnzb, 3, &real_mat_)) {
         LOG_ERROR("Creating spare real matrix failed\n");
         return false;    
     }
@@ -179,7 +193,7 @@ void MobSpme::Update(const double *pos, const double *rdi)
 {
     START_TIMER(detail::MOB_TICKS);
     
-    detail::UpdateSpmeEngine(pos, rdi, spme_);
+    detail::UpdateSpmeEngine(pos, spme_);
     int nnz = verlet_list_.Build(pos);
     detail::ResizeSparseMatrix(nnz, real_mat_);
     verlet_list_.GetPairs(real_mat_->rowbptr, real_mat_->colbidx);

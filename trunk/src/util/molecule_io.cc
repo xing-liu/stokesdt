@@ -49,6 +49,11 @@ bool MoleculeIO::ParseConfig(const char *config_file,
     string str_value;
     key_map_.clear();
     while (fgets(line, detail::kMaxLine, fp) != NULL) {
+        // empty line
+        if (strlen(line) == 1) {
+            continue;
+        }
+        line[strlen(line) - 1] = '\0';        
         char *line0 = strdup(line);
         char *head = strtok(line0, " \t");
         // not a comment line
@@ -96,6 +101,11 @@ bool MoleculeIO::ParseModel(const char *model_file,
     string str_value;
     line_map_.clear();
     while (fgets(line, detail::kMaxLine, fp) != NULL) {
+        // empty line
+        if (strlen(line) == 1) {
+            continue;
+        }
+        line[strlen(line) - 1] = '\0';
         char *line0 = strdup(line);
         char *head = strtok(line0, " \t");
         // not a comment line
@@ -185,7 +195,12 @@ bool MoleculeIO::ParseXYZ(const char *xyz_file,
     pos_.clear();
     rdi_.clear();
     ptype_.clear();
-    while (fgets(line, detail::kMaxLine, fp) != NULL) {
+    while (fgets(line, detail::kMaxLine, fp) != NULL && strlen(line) != 1) {
+        // empty line
+        if (strlen(line) <= 1) {
+            continue;
+        }
+        line[strlen(line) - 1] = '\0';        
         double x;
         double y;
         double z;
@@ -321,7 +336,8 @@ const char* MoleculeIO::GetStringKey(const char *key)
 {
     string str_key(key);
     
-    if (key_map_.find(str_key) != key_map_.end()) { // key not found
+    if (key_map_.find(str_key) == key_map_.end()) { // key not found
+        LOG_WARN("Key \"%s\" found.\n", str_key.c_str());
         return NULL;
     } else {
         return key_map_[str_key].c_str();

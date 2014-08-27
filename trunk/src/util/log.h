@@ -1,6 +1,6 @@
 /**
  * @file   log.h
- * @brief  Defines the logger
+ * @brief  Logger definition
  */
 
 #ifndef LOG_H_

@@ -1,3 +1,8 @@
+/**
+ * @file   profile.h
+ * @brief  Profiler definition
+ */
+
 #ifndef PROFILE_H_
 #define PROFILE_H_
 

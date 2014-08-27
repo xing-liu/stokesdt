@@ -6,6 +6,7 @@
 #include <mkl.h>
 #include <offload.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "spme.h"
 
@@ -34,10 +35,36 @@ SpmeEngine *spme_mic;
 #endif
 
 
-inline size_t FFTPadLen(size_t len, size_t size)
+inline double BSpline(int porder, double x)
 {
-    size_t len0 = kAlignLen/size;
-    return ((((len + len0 - 1)/len0) | 1) * len0);
+    double spline[porder];
+#if 0
+    if (1 == n) {
+        if (-1 <= x && x < 0) {
+            y = 1;
+        } else {
+            y = 0;
+        }
+    } else {
+        y = (x+1.0)/(n-1.0) * BSpline(n - 1, x) + 
+            (n-x-1.0)/(n-1.0) * BSpline(n - 1, x - 1);
+    }
+#else
+    memset(spline, 0, sizeof(double) * porder);
+    int p = floor(x) + 1;
+    if (p >=0 && p < porder) {
+        spline[p] = 1.0;
+    }
+    for (int i = 2; i <= porder; i++) {
+        for (int j = 0; j < porder + 1 - i; j++) {
+            spline[j] = (x - j + 1.0) * spline[j] +
+                (i - x + j - 1.0) * spline[j + 1];
+            spline[j] /= i - 1.0;
+        }
+    }
+#endif
+    
+    return spline[0];
 }
 
 
@@ -50,7 +77,11 @@ static bool ComputeSpline(const double xi,
                           double **p_map,
                           double **p_lm2)
 {
-    const double *splineval = tab_splines[porder - 1];
+    double splineval[porder - 1];
+    for (int i = 0; i < porder - 1; i++) {
+        splineval[i] = BSpline(porder, i);
+    }
+    
     double *map = (double *)AlignMalloc(sizeof(double) * dim + kSimdWidth);
     if (map == NULL) {
         return false;
@@ -89,8 +120,8 @@ static bool ComputeSpline(const double xi,
             den.imag += splineval[i] * sin(phi);
         }
         double phi0 = box_size * kx * (porder-1) / dim;
-        btmp.real = cos (phi0);
-        btmp.imag = sin (phi0);        
+        btmp.real = cos(phi0);
+        btmp.imag = sin(phi0);        
         double m2 = den.real*den.real + den.imag*den.imag;
         b[x].real = (btmp.real * den.real + btmp.imag * den.imag)/m2;
         b[x].imag = (btmp.imag * den.real - btmp.real * den.imag)/m2;
@@ -107,8 +138,8 @@ static bool ComputeSpline(const double xi,
                 MKL_Complex16 btmp;
                 MKL_Complex16 bbb;
                 double kx = map[x + i];
-                double kk = sqrt(kx*kx + ky*ky + kz*kz);
-                double m2 = ScalarRecip(kk, xi, 1.0, 1.0);
+                double k = sqrt(kx*kx + ky*ky + kz*kz);
+                double m2 = ScalarRecip(k, xi);
                 btmp.real =
                     b[x + i].real * b[y].real - b[x + i].imag * b[y].imag;
                 btmp.imag =
@@ -130,6 +161,7 @@ static bool ComputeSpline(const double xi,
 
 
 static void Interpolate(const int npos,
+                        const double *rdi,
                         const int porder3,
                         const double *P,
                         const int ldP,
@@ -142,18 +174,32 @@ static void Interpolate(const int npos,
                         double *vels )
 {
     const int align_dp = kAlignLen/sizeof(double);
-    #pragma omp parallel for schedule(dynamic)
-    for (int i = 0; i < npos; i+=align_dp) {
-        int endi = i + align_dp > npos ? npos : i + align_dp;
-        for (int k = i; k < endi; k++) {
-            InterpolateKernel(porder3, &(P[k*ldP]), &(ind[k*ldind]),
-                              alpha, grid, ld3, beta, &(vels[3*k]));
+
+    if (rdi != NULL) {
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < npos; i+=align_dp) {
+            int endi = i + align_dp > npos ? npos : i + align_dp;
+            for (int k = i; k < endi; k++) {
+                double alpha0 = rdi[k] * alpha;
+                InterpolateKernel(porder3, &(P[k*ldP]), &(ind[k*ldind]),
+                                  alpha0, grid, ld3, beta, &(vels[3*k]));
+            }
         }
-    }
+    } else {
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < npos; i+=align_dp) {
+            int endi = i + align_dp > npos ? npos : i + align_dp;
+            for (int k = i; k < endi; k++) {
+                InterpolateKernel(porder3, &(P[k*ldP]), &(ind[k*ldind]),
+                                  alpha, grid, ld3, beta, &(vels[3*k]));
+            }
+        }    
+    } // if (rdi != NULL)
 }
 
 
-static void ApplyInfluence(const int dim,
+static void ApplyInfluence(const int flag,
+                           const int dim,
                            const double *map,
                            const double *lm2,                     
                            const int ld1,
@@ -166,7 +212,7 @@ static void ApplyInfluence(const int dim,
     
     // grid(x,y,z,:) = B(:,:,x,y,z)*squeeze(grid(x,y,z,:));    
     #pragma omp parallel default(none)\
-                         shared (ld1c, ld2c, ld3, dim, grid, map, lm2)
+                         shared (ld1c, ld2c, ld3, dim, grid, map, lm2, flag)
     {
         __declspec(align(kAlignLen)) double B0[dim/2 + 1 + kSplineLen];
         __declspec(align(kAlignLen)) double B1[dim/2 + 1 + kSplineLen];
@@ -174,6 +220,7 @@ static void ApplyInfluence(const int dim,
         __declspec(align(kAlignLen)) double B3[dim/2 + 1 + kSplineLen];
         __declspec(align(kAlignLen)) double B4[dim/2 + 1 + kSplineLen];
         __declspec(align(kAlignLen)) double B5[dim/2 + 1 + kSplineLen];
+
         #pragma omp for schedule(static)
         for (int j = 0; j < dim * dim; j++) {
             int z = j/dim;
@@ -182,23 +229,68 @@ static void ApplyInfluence(const int dim,
             double ky = map[y];
             const double *mm = &(lm2[j * ld1c]);
             double kyz = ky*ky + kz*kz;
-            #pragma simd
-            for (int x = 0; x <= dim/2; x++) {
-                double kx = map[x];
-                double m2 = mm[x];
-                double kk = 1.0/(kx*kx + kyz);
-                double exx = kx * kx * kk;
-                double eyy = ky * ky * kk;
-                double ezz = kz * kz * kk;
-                double exy = kx * ky * kk;
-                double eyz = ky * kz * kk;
-                double exz = kx * kz * kk;              
-                B0[x] = m2 - m2 * exx; // 0
-                B1[x] = -m2 * exy;     // 1 and 3
-                B2[x] = -m2 * exz;     // 2 and 6
-                B3[x] = m2 - m2 * eyy; // 4
-                B4[x] = -m2 * eyz;     // 5 and 7
-                B5[x] = m2 - m2 * ezz; // 8
+            if (flag == 0) {
+                #pragma simd
+                for (int x = 0; x <= dim/2; x++) {
+                    double kx = map[x];
+                    double m2 = mm[x];
+                    double kk = kx*kx + kyz;
+                    double kk_1 = 1.0/kk; 
+                    m2 =  m2 * (1.0 - kk/3.0);
+                    double exx = kx * kx * kk_1;
+                    double eyy = ky * ky * kk_1;
+                    double ezz = kz * kz * kk_1;
+                    double exy = kx * ky * kk_1;
+                    double eyz = ky * kz * kk_1;
+                    double exz = kx * kz * kk_1;
+                    B0[x] = m2 - m2 * exx; // 0
+                    B1[x] = -m2 * exy;     // 1 and 3
+                    B2[x] = -m2 * exz;     // 2 and 6
+                    B3[x] = m2 - m2 * eyy; // 4
+                    B4[x] = -m2 * eyz;     // 5 and 7
+                    B5[x] = m2 - m2 * ezz; // 8
+                }
+            } else if (flag == 1) {
+                #pragma simd
+                for (int x = 0; x <= dim/2; x++) {
+                    double kx = map[x];
+                    double m2 = mm[x];
+                    double kk = kx*kx + kyz;
+                    double kk_1 = 1.0/kk;
+                    double exx = kx * kx * kk_1;
+                    double eyy = ky * ky * kk_1;
+                    double ezz = kz * kz * kk_1;
+                    double exy = kx * ky * kk_1;
+                    double eyz = ky * kz * kk_1;
+                    double exz = kx * kz * kk_1;
+                    B0[x] = m2 - m2 * exx; // 0
+                    B1[x] = -m2 * exy;     // 1 and 3
+                    B2[x] = -m2 * exz;     // 2 and 6
+                    B3[x] = m2 - m2 * eyy; // 4
+                    B4[x] = -m2 * eyz;     // 5 and 7
+                    B5[x] = m2 - m2 * ezz; // 8
+                }            
+            } else if (flag == 2) {
+                #pragma simd
+                for (int x = 0; x <= dim/2; x++) {
+                    double kx = map[x];
+                    double m2 = mm[x];
+                    double kk = kx*kx + kyz;
+                    double kk_1 = 1.0/kk;
+                    m2 =  m2 * (-kk/6.0);                    
+                    double exx = kx * kx * kk_1;
+                    double eyy = ky * ky * kk_1;
+                    double ezz = kz * kz * kk_1;
+                    double exy = kx * ky * kk_1;
+                    double eyz = ky * kz * kk_1;
+                    double exz = kx * kz * kk_1;
+                    B0[x] = m2 - m2 * exx; // 0
+                    B1[x] = -m2 * exy;     // 1 and 3
+                    B2[x] = -m2 * exz;     // 2 and 6
+                    B3[x] = m2 - m2 * eyy; // 4
+                    B4[x] = -m2 * eyz;     // 5 and 7
+                    B5[x] = m2 - m2 * ezz; // 8
+                }             
             }
 
             for (int x = 0; x <= dim/2; x+=kSplineLen) {
@@ -218,14 +310,14 @@ static void ApplyInfluence(const int dim,
 }
 
 
-static void Spread(const int np,
+static void Spread(const double *rdi,
                    const int nb,
                    const int *head,
                    const int *next,
                    const int porder3,
                    const double *P,
                    const int ldP,
-                  const int *ind,
+                   const int *ind,
                    const int ldind,
                    const double *forces,
                    const int ld3,
@@ -239,28 +331,45 @@ static void Spread(const int np,
         grid[i] = 0.0;
     }
 
-    for (int set = 0; set < 8; set++) {
-        #pragma omp parallel for
-        for (int k = n8 * set; k < (set + 1) * n8; k++) {
-            int i = head[k];
-            while (i != -1) {
-                SpreadKernel(porder3, &(P[i * ldP]), &(ind[i * ldind]),
-                             &(forces[i * 3]), ld3, grid);
-                i = next[i];
+    if (rdi != NULL) {
+        for (int set = 0; set < 8; set++) {
+            #pragma omp parallel for
+            for (int k = n8 * set; k < (set + 1) * n8; k++) {
+                int i = head[k];
+                while (i != -1) {
+                    double force0[3];
+                    force0[0] = forces[i * 3 + 0] * rdi[i];
+                    force0[1] = forces[i * 3 + 1] * rdi[i];
+                    force0[2] = forces[i * 3 + 2] * rdi[i];
+                    SpreadKernel(porder3, &(P[i * ldP]), &(ind[i * ldind]),
+                                 force0, ld3, grid);
+                    i = next[i];
+                }
             }
         }
-    }
+    } else {
+        for (int set = 0; set < 8; set++) {
+            #pragma omp parallel for
+            for (int k = n8 * set; k < (set + 1) * n8; k++) {
+                int i = head[k];
+                while (i != -1) {
+                    SpreadKernel(porder3, &(P[i * ldP]), &(ind[i * ldind]),
+                                 &(forces[i * 3]), ld3, grid);
+                    i = next[i];
+                }
+            }
+        }    
+    } // if (rdi != NULL)
 }
 
 
 static void UpdateSpmeEngine_(const double *pos,
-                              const double *rdi,
                               SpmeEngine *spme)
 {
     int npos = spme->npos;
     double pidx[npos];
     #pragma omp parallel default(none)\
-                         shared (npos, pos, rdi, pidx, spme)
+                         shared (npos, pos, pidx, spme)
     {
         int porder = spme->porder;
         int dim = spme->dim;
@@ -288,6 +397,7 @@ static void UpdateSpmeEngine_(const double *pos,
         __declspec(align(kAlignLen)) double q2[porder];
         __declspec(align(kAlignLen)) double q3[porder];        
         double g[3];
+        double ground[3];
         #pragma omp for schedule(static)
         for (int i = 0; i < npos; i++) {
             double cx = fmod(pos[3 * i + 0], box_size);
@@ -299,20 +409,38 @@ static void UpdateSpmeEngine_(const double *pos,
             cx = pos[i * 3 + 0]/box_size * dim;
             cy = pos[i * 3 + 1]/box_size * dim;
             cz = pos[i * 3 + 2]/box_size * dim;
+            // independent set
             int bx = (int)(cx/sizeb);
             int by = (int)(cy/sizeb);
             int bz = (int)(cz/sizeb);
             pidx[i] = bidx[bz * nb2 + by * nb + bx];         
+            // FFT mesh
             g[0] = floor(cx);
             g[1] = floor(cy);
-            g[2] = floor(cz);            
-            int indx = (int)(g[0] - porder/2 + 1);
-            indx = (indx + dim) % dim;
-            int indy = (int)(g[1] - porder/2 + 1);
-            indy = (indy + dim) % dim;
-            int indz = (int)(g[2] - porder/2 + 1);
-            indz = (indz + dim) % dim;
-
+            g[2] = floor(cz);
+            int indx;
+            int indy;
+            int indz;
+            if (porder%2 == 0) {
+                indx = (int)(g[0] - porder/2 + 1);
+                indx = (indx + dim) % dim;
+                indy = (int)(g[1] - porder/2 + 1);
+                indy = (indy + dim) % dim;
+                indz = (int)(g[2] - porder/2 + 1);
+                indz = (indz + dim) % dim;
+            } else {
+                ground[0] = floor(cx + 0.5);
+                ground[1] = floor(cy + 0.5);
+                ground[2] = floor(cz + 0.5);
+                int temp = (porder - 1)/2;
+                indx = (int)(g[0] - temp);
+                indx = (indx + dim) % dim;
+                indy = (int)(g[1] - temp);
+                indy = (indy + dim) % dim;
+                indz = (int)(g[2] - temp);
+                indz = (indz + dim) % dim;
+            }
+        #if 0
             g[0] = cx - g[0] - 0.5;
             g[1] = cy - g[1] - 0.5;
             g[2] = cz - g[2] - 0.5;
@@ -336,7 +464,13 @@ static void UpdateSpmeEngine_(const double *pos,
                     q3[x] += W[x * porder + y] * p3[y];
                 }
             }
-        
+        #else
+            for (int x = 0; x < porder; x++) {
+                q1[x] = BSpline(porder, g[0] - cx + x);
+                q2[x] = BSpline(porder, g[1] - cy + x);
+                q3[x] = BSpline(porder, g[2] - cz + x);
+            }
+        #endif
             for (int z = 0; z < porder; z++) {
                 int zz = (z + indz) % dim;
                 for (int y = 0; y < porder; y++) {
@@ -375,19 +509,31 @@ static void UpdateSpmeEngine_(const double *pos,
 
 
 static bool CreateSpmeEngine_(const int npos,
+                              const double *rdi,
                               const double box_size,
                               const double xi,
                               const int dim,
                               const int porder,
                               SpmeEngine **p_spme)
-{
+{    
     SpmeEngine *spme = new SpmeEngine;
     spme->dim = dim;
     spme->porder = porder;    
     spme->npos = npos;
     spme->box_size = box_size;
     spme->xi = xi;
-    
+    if (rdi != NULL) {
+        spme->rdi2 = (double *)AlignMalloc(sizeof(double) * npos);
+        if (NULL == spme->rdi2) {
+            return false;
+        }
+        for (int i = 0; i < npos; i++) {
+            spme->rdi2[i] = rdi[i] * rdi[i];
+        }
+    } else {
+        spme->rdi2 = NULL;
+    }
+        
     // init fft
     int pad_dim  = FFTPadLen(dim, sizeof(double));
     int pad_dim2 = (dim/2 + 1)*2;
@@ -420,6 +566,7 @@ static bool CreateSpmeEngine_(const int npos,
     if (ret != 0) {
         return false;            
     }
+
     ret = DftiSetValue(spme->fwhandle, DFTI_INPUT_STRIDES, ld_fw);
     if (ret != 0) {
         return false;            
@@ -434,6 +581,7 @@ static bool CreateSpmeEngine_(const int npos,
     if (ret != 0) {
         return false;            
     }
+
     ret = DftiCommitDescriptor(spme->fwhandle);
     if (ret != 0) {
         return false;            
@@ -544,16 +692,19 @@ static bool CreateSpmeEngine_(const int npos,
 static void DestroySpmeEngine_(SpmeEngine *spme)
 {
     if (spme != NULL) {
-        DftiFreeDescriptor (&(spme->fwhandle));
-        DftiFreeDescriptor (&(spme->bwhandle));        
-        AlignFree (spme->map);
-        AlignFree (spme->lm2);
-        AlignFree (spme->grid);
-        AlignFree (spme->P);
-        AlignFree (spme->ind);
-        free (spme->head);
-        free (spme->bidx);
-        free (spme->next);
+        DftiFreeDescriptor(&(spme->fwhandle));
+        DftiFreeDescriptor(&(spme->bwhandle));        
+        AlignFree(spme->map);
+        AlignFree(spme->lm2);
+        AlignFree(spme->grid);
+        AlignFree(spme->P);
+        AlignFree(spme->ind);
+        free(spme->head);
+        free(spme->bidx);
+        free(spme->next);
+        if (spme->rdi2 != NULL) {
+            AlignFree(spme->rdi2);
+        }
     }
     delete spme;
 }
@@ -586,33 +737,103 @@ static void ComputeSpmeRecip_(const SpmeEngine *spme,
     int ldP = spme->ldP;
     int ldind = spme->ldind;
     double *grid = spme->grid;
-    double alpha0 = alpha * (double)dim3/(box_size*box_size*box_size);        
-    for (int irhs = 0; irhs < nrhs; irhs++) {
-        const double *vin = &(vec_in[ldin * irhs]);
-        double *vout = &(vec_out[ldout * irhs]);
+    double alpha0 = alpha * (double)dim3/(box_size*box_size*box_size);
 
-        // spread
-        Spread(npos, spme->nb, spme->head, spme->next,
-               porder3, P, ldP, ind, ldind,
-               vin, ld3, grid);
+    if (spme->rdi2 == NULL) {
+        for (int irhs = 0; irhs < nrhs; irhs++) {
+            const double *vin = &(vec_in[ldin * irhs]);
+            double *vout = &(vec_out[ldout * irhs]);
 
-        // forward fft
-        DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
-        DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
-        DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
+            // spread
+            Spread(NULL, spme->nb, spme->head, spme->next,
+                   porder3, P, ldP, ind, ldind,
+                   vin, ld3, grid);
 
-        // apply influence
-        ApplyInfluence(dim, spme->map, spme->lm2,
-                       ld1, ld2, ld3, grid);
+            // forward fft
+            DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
 
-        // backward fft
-        DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
-        DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
-        DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+            // apply influence
+            ApplyInfluence(0, dim, spme->map, spme->lm2,
+                           ld1, ld2, ld3, grid);
 
-        // interpolate
-        Interpolate(npos, porder3, P, ldP, ind, ldind,
-                    alpha0, grid, ld3, beta, vout);
+            // backward fft
+            DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+
+            // interpolate
+            Interpolate(npos, NULL, porder3, P, ldP, ind, ldind,
+                        alpha0, grid, ld3, beta, vout);
+        }
+    } else {
+        for (int irhs = 0; irhs < nrhs; irhs++) {
+            const double *vin = &(vec_in[ldin * irhs]);
+            double *vout = &(vec_out[ldout * irhs]);
+
+            // 1st call
+            // spread
+            Spread(NULL, spme->nb, spme->head, spme->next,
+                   porder3, P, ldP, ind, ldind,
+                   vin, ld3, grid);
+            // forward fft
+            DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
+            // apply influence
+            ApplyInfluence(1, dim, spme->map, spme->lm2,
+                           ld1, ld2, ld3, grid);
+            // backward fft
+            DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+            // interpolate
+            Interpolate(npos, NULL, porder3, P, ldP, ind, ldind,
+                        alpha0, grid, ld3, beta, vout);
+
+            // 2nd call
+            // spread
+            Spread(spme->rdi2, spme->nb, spme->head, spme->next,
+                   porder3, P, ldP, ind, ldind,
+                   vin, ld3, grid);
+            // forward fft
+            DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
+            // apply influence
+            ApplyInfluence(2, dim, spme->map, spme->lm2,
+                           ld1, ld2, ld3, grid);
+            // backward fft
+            DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+            // interpolate
+            Interpolate(npos, NULL, porder3, P, ldP, ind, ldind,
+                        alpha0, grid, ld3, 1.0, vout);
+
+
+            // 3rd call
+            // spread
+            Spread(NULL, spme->nb, spme->head, spme->next,
+                   porder3, P, ldP, ind, ldind,
+                   vin, ld3, grid);
+            // forward fft
+            DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
+            DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
+            // apply influence
+            ApplyInfluence(2, dim, spme->map, spme->lm2,
+                           ld1, ld2, ld3, grid);
+            // backward fft
+            DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
+            DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+            // interpolate
+            Interpolate(npos, spme->rdi2, porder3, P, ldP, ind, ldind,
+                        alpha0, grid, ld3, 1.0, vout);
+            
+        }
     }
 }
 
@@ -623,6 +844,7 @@ static void ComputeSpmeRecip_(const SpmeEngine *spme,
 
 
 bool CreateSpmeEngine(const int npos,
+                      const double *rdi,
                       const double box_size,
                       const double xi,
                       const int dim,
@@ -630,7 +852,7 @@ bool CreateSpmeEngine(const int npos,
                       SpmeEngine **p_spme)
 {
     bool ret;
-    ret = CreateSpmeEngine_(npos, box_size, xi, dim, porder, p_spme);
+    ret = CreateSpmeEngine_(npos, rdi, box_size, xi, dim, porder, p_spme);
     if (!ret) {
         return false;
     }
@@ -644,15 +866,31 @@ bool CreateSpmeEngine(const int npos,
     p_spme[0]->nbcpu = nbcpu;
     p_spme[0]->nbmic = nbmic;
     p_spme[0]->mic_numdevs = mic_numdevs;
-    
-    for (int i = 0; i < mic_numdevs; i++) {
-        #pragma offload target(mic: i)\
-                in(xi, dim, porder, npos, box_size)\
-                out(ret) nocopy(spme_mic)
-        ret = CreateSpmeEngine_(npos, box_size, xi, dim, porder, &spme_mic);
-        if (!ret) {
-            return false;
+
+    if (NULL == rdi) {
+        for (int i = 0; i < mic_numdevs; i++) {
+            #pragma offload target(mic: i)\
+                    in(xi, dim, porder, npos, box_size)\
+                    in(rdi :length(npos) ONCE)\
+                    out(ret) nocopy(spme_mic)
+            ret = CreateSpmeEngine_(npos, rdi, box_size,
+                                    xi, dim, porder, &spme_mic);
+            if (!ret) {
+                return false;
+            }
         }
+    } else {
+        for (int i = 0; i < mic_numdevs; i++) {
+            #pragma offload target(mic: i)\
+                    in(xi, dim, porder, npos, box_size)\
+                    in(rdi :length(npos) ONCE)\
+                    out(ret) nocopy(spme_mic)
+            ret = CreateSpmeEngine_(npos, rdi, box_size,
+                                    xi, dim, porder, &spme_mic);
+            if (!ret) {
+                return false;
+            }
+        }    
     }
 #endif
 
@@ -717,8 +955,7 @@ void ComputeSpmeRecip(const SpmeEngine *spme,
         // CPU work concurrently
         if (idx != nrhs && nbcpu != 0) {
             int size = idx + nbcpu > nrhs ? nrhs - idx : nbcpu;
-            ComputeSpmeRecip_(spme, nrhs,
-                              alpha, ldin, &(vec_in[idx * ldin]),
+            ComputeSpmeRecip_(spme, nrhs, alpha, ldin, &(vec_in[idx * ldin]),
                               beta, ldout, &(vec_out[idx * ldout]));
             idx += size;
         }
@@ -733,12 +970,13 @@ void ComputeSpmeRecip(const SpmeEngine *spme,
         }
     }
 #else
-    ComputeSpmeRecip_(spme, nrhs, alpha, ldin, vec_in, beta, ldout, vec_out);
+    ComputeSpmeRecip_(spme, nrhs, alpha, ldin,
+                      vec_in, beta, ldout, vec_out);
 #endif // #ifdef __INTEL_OFFLOAD
 }
 
 
-void UpdateSpmeEngine(const double *pos, const double *rdi, SpmeEngine *spme)
+void UpdateSpmeEngine(const double *pos, SpmeEngine *spme)
 {
 #ifdef __INTEL_OFFLOAD
     int npos = spme->npos;
@@ -746,10 +984,10 @@ void UpdateSpmeEngine(const double *pos, const double *rdi, SpmeEngine *spme)
         #pragma offload target(mic: i)\
                 in(pos :length(3*npos) ONCE)\ 
                 nocopy(spme_mic)
-        UpdateSpmeEngine_(pos, NULL, spme_mic);
+        UpdateSpmeEngine_(pos, spme_mic);
     }
 #endif
-    UpdateSpmeEngine_(pos, rdi, spme);
+    UpdateSpmeEngine_(pos, spme);
 }
 
 } // namespace stokesdt
