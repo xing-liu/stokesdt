@@ -81,7 +81,7 @@ class BDSimBox : public SimBoxBase {
     double cur_time_;
     int traj_interval_;
     int traj_start_;
-    std::ofstream traj_fs_;
+    FILE *traj_fp_;
     
     MobBase *mob_;
     int dim_mob_;

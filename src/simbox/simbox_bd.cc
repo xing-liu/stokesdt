@@ -48,6 +48,9 @@ BDSimBox::~BDSimBox()
     for (int i = 0; i < num_forces; i++) {
         delete force_[i];
     }
+    if (traj_fp_ != NULL) {
+        fclose(traj_fp_);
+    }
 }
 
 
@@ -252,9 +255,13 @@ bool BDSimBox::Init()
     if (traj_interval_ > 0) {
         const char* traj_file = mol_io_->GetStringKey("traj-output");
         if (0) {
-            traj_fs_.open(traj_file);
+            traj_fp_ = fopen(traj_file, "w+");
         } else {
-            traj_fs_.open("./trajectory.out");
+            traj_fp_ = fopen("./trajectory.out", "w+");
+        }
+        if (traj_fp_ == NULL) {
+            LOG_ERROR("Open file %s failed.\n", "trajectory.out");
+            return false;
         }
     }
     
@@ -313,15 +320,20 @@ void BDSimBox::Advance(int nsteps)
 
         STOP_TIMER(detail::PARTICLE_TICKS);
 
-        // advance indices and time
+        // advance time and steps        
         irhs++;
         istep_++;
         cur_time_ += delta_t_;
-
+        
         gettimeofday (&tv2, NULL);
         timersub (&tv2, &tv1, &tv1);
         double timepass = tv1.tv_sec + tv1.tv_usec/1e6;
-        LOG(3, "    Elapsed time: %.3le secs\n", timepass);    
+        LOG(3, "    Elapsed time: %.3le secs\n", timepass);
+
+        if (traj_interval_ > 0) {
+            mol_io_->WriteXYZ(npos_, Lx_, Ly_, Lz_, istep_, cur_time_, NULL,
+                              pos_, rdi_, traj_fp_);
+        }
     }        
 }
 
