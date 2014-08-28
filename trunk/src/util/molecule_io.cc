@@ -396,7 +396,7 @@ void MoleculeIO::WriteXYZ(const int npos,
     fprintf(fp, "%d %g %g %.10g %.10g\n",
         start_frame, start_time, Lx, Ly, Lz);
     for (int i = 0; i < npos; i++) {
-        fprintf(fp, "%s %.10g %.10g %.10g\n", ptype[i],
+        fprintf(fp, "%s %.10g %.10g %.10g\n", "N",
             pos[i * 3 + 0], pos[i * 3 + 1], pos[i * 3 + 2]);
     }
 }

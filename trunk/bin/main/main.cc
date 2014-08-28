@@ -113,7 +113,12 @@ int main(int argc, char **argv)
             return false;
         } else {
             char *level_str = strtok(NULL, ":");
-            int log_level = atoi(level_str);
+            int log_level = 1;
+            if (level_str != NULL) {
+                log_level = atoi(level_str);
+            } else {
+                log_level = 3;
+            }
             if (log_level >=0) {
                 SetLoggerLevel(log_level);
             }
