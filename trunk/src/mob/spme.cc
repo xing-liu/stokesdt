@@ -373,7 +373,7 @@ static void UpdateSpmeEngine_(const double *pos,
     {
         int porder = spme->porder;
         int dim = spme->dim;
-        const double *W = tab_W[porder - 1];
+//        const double *W = tab_W[porder - 1];
         int porder2 = porder * porder;
         int ldP = spme->ldP;
         double *P = spme->P;
@@ -389,10 +389,11 @@ static void UpdateSpmeEngine_(const double *pos,
         int *bidx = spme->bidx;
         int *head = spme->head;
         int *next = spme->next;
-        
+    #if 0        
         __declspec(align(kAlignLen)) double p1[porder];
         __declspec(align(kAlignLen)) double p2[porder];
         __declspec(align(kAlignLen)) double p3[porder];
+    #endif
         __declspec(align(kAlignLen)) double q1[porder];
         __declspec(align(kAlignLen)) double q2[porder];
         __declspec(align(kAlignLen)) double q3[porder];        

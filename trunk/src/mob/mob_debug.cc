@@ -85,21 +85,27 @@ bool MobDebug::Init()
             !detail::InitRecipTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
         }
+    #if 0
         fprintf(stdout, "Ewald: rmax = %g, kmax = %g, nr = %d nk = %d\n",
             ewald_tbl_->rmax, ewald_tbl_->kmax,
             ewald_tbl_->nr, ewald_tbl_->nk);
+    #endif
     } else if (mode_ == EWALD_REAL) {
         if (!detail::InitRealTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
-        }    
+        }
+    #if 0    
         fprintf(stdout, "Ewald Real: rmax = %g, nr = %d\n",
             ewald_tbl_->rmax, ewald_tbl_->nr);
+    #endif
     } else if (mode_ == EWALD_RECIP) {
         if (!detail::InitRecipTable(xi_, box_size_, tol_, ewald_tbl_)) {
             return false;
-        }    
+        }
+    #if 0    
         fprintf(stdout, "Ewald Recip: kmax = %g, nk = %d\n",
             ewald_tbl_->kmax, ewald_tbl_->nk);
+    #endif
     }
     
     return true;

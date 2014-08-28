@@ -80,6 +80,14 @@ bool MobSpme::Init()
                   " less than or equal to 1: %d.\n", porder_);
         return false;
     }
+    if (2.0 * rmax_ >= box_size_) {
+        LOG_ERROR("rmax must be less than box_size/2.0");
+        return false;
+    }
+    if (4 * porder_ > dim_) {
+        LOG_ERROR("porder must be smaller than dim/4\n");
+        return false;
+    }
 
     LOG(3, "\n        Initializes MobSpme\n");
     LOG(3, "        -------------------\n");
@@ -93,14 +101,12 @@ bool MobSpme::Init()
     double max_radius = *std::max_element(rdi_.begin(), rdi_.end());
     double min_radius = *std::min_element(rdi_.begin(), rdi_.end());
     if (max_radius != 1.0 || min_radius != 1.0) {
-        printf("xixi\n");
         if (!detail::CreateSpmeEngine(npos_, &rdi_[0], box_size_, xi_,
                                       dim_, porder_, &spme_)) {
             LOG_ERROR("Creating Spme failed\n");
             return false;
         }
     } else {
-        printf("NULL\n");
         if (!detail::CreateSpmeEngine(npos_, NULL, box_size_, xi_,
                                       dim_, porder_, &spme_)) {
             LOG_ERROR("Creating Spme failed\n");
