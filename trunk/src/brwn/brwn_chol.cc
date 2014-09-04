@@ -54,11 +54,9 @@ void BrwnChol::Compute(MobBase *mob, const int num_rhs,
                        const int ldy, double *y)
 {
     START_TIMER(detail::BRWN_TICKS);
-    
     // get the mobility matrix
     MobMatrix *mobmatrix = (MobMatrix *)mob;
     mobmatrix->GetMatrix(ldm_, cholmat_);
-
     // compute Cholesky factor L
     LAPACKE_dpotrf (LAPACK_COL_MAJOR, 'L', dim_, cholmat_, ldm_);
 
