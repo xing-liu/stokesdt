@@ -21,7 +21,7 @@ bool RndStream::Init()
 {
     LOG(3, "\n        Initializes RndStream\n");
     LOG(3, "        ---------------------\n");
-    LOG(3, "Sedd = %d\n", seed_);
+    LOG(3, "Seed = %d\n", seed_);
 
     VSLStreamStatePtr vslstream;
     if (vslNewStream(&vslstream, VSL_BRNG_SFMT19937, seed_) != VSL_STATUS_OK) {

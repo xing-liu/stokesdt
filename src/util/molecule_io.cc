@@ -337,7 +337,7 @@ const char* MoleculeIO::GetStringKey(const char *key)
     string str_key(key);
     
     if (key_map_.find(str_key) == key_map_.end()) { // key not found
-        LOG_WARN("Key \"%s\" found.\n", str_key.c_str());
+        LOG_WARN("Key \"%s\" not found.\n", str_key.c_str());
         return NULL;
     } else {
         return key_map_[str_key].c_str();

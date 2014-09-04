@@ -159,12 +159,14 @@ bool BDSimBox::InitBrwn()
     }
 
     // create buffers
-    brwn_vec_ = (double *)detail::AlignMalloc(sizeof(double) * dim_mob_ * ldm_);
-    disp_vec_ = (double *)detail::AlignMalloc(sizeof(double) * dim_mob_ * ldm_);
+    brwn_vec_ = (double *)detail::AlignMalloc(sizeof(double) * mob_interval_ *
+                                              dim_mob_ * ldm_);
+    disp_vec_ = (double *)detail::AlignMalloc(sizeof(double) * mob_interval_ *
+                                              dim_mob_ * ldm_);
     if (NULL == brwn_vec_ ||
         NULL == disp_vec_) {
         LOG_ERROR("Failed to allocate memory: %lld.\n",
-            sizeof(double) * dim_mob_ * ldm_);
+            sizeof(double) * dim_mob_ * ldm_ * mob_interval_);
         return false;
     }
 
@@ -254,7 +256,7 @@ bool BDSimBox::Init()
     traj_start_ = mol_io_->GetIntKey("traj-startstep", 0, INT_MAX, 0);
     if (traj_interval_ > 0) {
         const char* traj_file = mol_io_->GetStringKey("traj-output");
-        if (0) {
+        if (NULL != traj_file) {
             traj_fp_ = fopen(traj_file, "w+");
         } else {
             traj_fp_ = fopen("./trajectory.out", "w+");
@@ -296,7 +298,7 @@ void BDSimBox::Advance(int nsteps)
         {
             irhs = 0;
             // generate random vectors
-            rnd_stream_->Gaussian(0.0, sqrt(2.0/delta_t_),
+            rnd_stream_->Gaussian(0.0, sqrt(2.0 * delta_t_),
                                  dim_mob_, mob_interval_, ldm_, brwn_vec_);
             // build mobility matrix
             mob_->Update(pos_, rdi_);
@@ -305,7 +307,6 @@ void BDSimBox::Advance(int nsteps)
                            ldm_, brwn_vec_, ldm_, disp_vec_);
         }
         double *cur_disp = &(disp_vec_[irhs * ldm_]);
-
         // compute external forces
         memset(f, 0, sizeof(double) * ldm_);
         for (int i = 0; i < num_forces; i++) {
@@ -331,7 +332,8 @@ void BDSimBox::Advance(int nsteps)
         LOG(3, "    Elapsed time: %.3le secs\n", timepass);
 
         if (traj_interval_ > 0) {
-            mol_io_->WriteXYZ(npos_, Lx_, Ly_, Lz_, istep_, cur_time_, NULL,
+            mol_io_->WriteXYZ(npos_, Lx_, Ly_, Lz_,
+                              istep_, cur_time_, NULL,
                               pos_, rdi_, traj_fp_);
         }
     }        
