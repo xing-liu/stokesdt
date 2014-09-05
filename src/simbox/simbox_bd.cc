@@ -307,13 +307,14 @@ void BDSimBox::Advance(int nsteps)
                            ldm_, brwn_vec_, ldm_, disp_vec_);
         }
         double *cur_disp = &(disp_vec_[irhs * ldm_]);
+
         // compute external forces
         memset(f, 0, sizeof(double) * ldm_);
         for (int i = 0; i < num_forces; i++) {
             force_[i]->Accumulate(pos_, rdi_, f);
         }
-        mob_->MulVector(1, 1.0, ldm_, f, 1.0, ldm_, cur_disp);
-
+        mob_->MulVector(1, delta_t_, ldm_, f, 1.0, ldm_, cur_disp);
+        
         START_TIMER(detail::PARTICLE_TICKS);
 
         // update pos
