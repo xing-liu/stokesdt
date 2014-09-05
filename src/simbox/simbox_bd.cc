@@ -299,7 +299,7 @@ void BDSimBox::Advance(int nsteps)
             irhs = 0;
             // generate random vectors
             rnd_stream_->Gaussian(0.0, sqrt(2.0 * delta_t_),
-                                 dim_mob_, mob_interval_, ldm_, brwn_vec_);
+                                  dim_mob_, mob_interval_, ldm_, brwn_vec_);
             // build mobility matrix
             mob_->Update(pos_, rdi_);
             // compute Brownian displacements
