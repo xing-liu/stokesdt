@@ -1,6 +1,6 @@
 include ../makevars.in
 
-SUBDIR = ewald steric spme brownian
+SUBDIR = ewald steric spme lanczos
 
 all:
 	@for dir in $(SUBDIR); \

@@ -1,6 +1,6 @@
 include ../../makevars.in
 
-TARGET  = testbrwn
+TARGET  = testrandom
 
 SRC     = $(notdir $(wildcard *.cc))
 OBJS    = $(addsuffix .o, $(basename $(SRC)))  
