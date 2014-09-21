@@ -804,6 +804,7 @@ bool CreateEwaldTable(const double xi, const double box_size,
     InitRealTable(xi, box_size, tol, tbl);
     InitRecipTable(xi, box_size, tol, tbl);
     *p_ewald_tbl = tbl;
+    printf("xi = %g nr %d nk %d\n", xi, tbl->nr, tbl->nk);
 
     return true;
 }

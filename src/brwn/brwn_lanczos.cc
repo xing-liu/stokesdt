@@ -23,7 +23,6 @@ int BrwnLanczos::Lanczos(MobBase *mob,
     __declspec(align(detail::kAlignLen)) double d1[ldh];
     __declspec(align(detail::kAlignLen)) double e1[ldh];
     __declspec(align(detail::kAlignLen)) double h2[(max_iters_ + 1) * ldh];
-    __declspec(align(detail::kAlignLen)) double y_old[ldv_];
 
     // v(:,1) = z/norm(z)
     double normz = cblas_dnrm2(dim_, z, 1);
@@ -69,13 +68,13 @@ int BrwnLanczos::Lanczos(MobBase *mob,
 
         // check convergence
         if (iter > 0) {
-            cblas_daxpy(dim_, -1.0, y, 1, y_old, 1);
-            double normy = cblas_dnrm2(dim_, y_old, 1);
+            cblas_daxpy(dim_, -1.0, y, 1, y_old_, 1);
+            double normy = cblas_dnrm2(dim_, y_old_, 1);
             if (normy/normz < tol_) {
                 break;
             }
         }
-        cblas_dcopy(dim_, y, 1, y_old, 1);
+        cblas_dcopy(dim_, y, 1, y_old_, 1);
     } // for (iter = 0; i < max_iters_; i++)
 
     iter = (iter == max_iters_ ? -1 : iter);   
@@ -95,11 +94,10 @@ int BrwnLanczos::BlockLanczos(MobBase *mob,
     __declspec(align(detail::kAlignLen)) double band0[(num_rhs + 1) * ldh];
     __declspec(align(detail::kAlignLen)) double band1[(num_rhs + 1) * ldh];
     __declspec(align(detail::kAlignLen)) double D[(num_rhs + 1) * ldh];
-    __declspec(align(detail::kAlignLen)) double H2[(max_iters_ + 1) * num_rhs * ldh];
+    __declspec(align(detail::kAlignLen)) double H2[(max_iters_ + 1)*num_rhs*ldh];
     __declspec(align(detail::kAlignLen)) double H[num_rhs * ldr];
     __declspec(align(detail::kAlignLen)) double tau[num_rhs];
     __declspec(align(detail::kAlignLen)) double R[num_rhs * ldr];
-    __declspec(align(detail::kAlignLen)) double y_old[num_rhs * ldv_];
 
     // [V(:,:,1), R] = qr(Z, 0)
     double normz = dlange("F", &dim_, &num_rhs, z, &ldz, NULL);
@@ -189,13 +187,13 @@ int BrwnLanczos::BlockLanczos(MobBase *mob,
 
         // check convergence
         if (iter > 0) {
-            cblas_daxpy(ldv_ * num_rhs, -1.0, y, 1, y_old, 1);
-            double normy = dlange("F", &dim_, &num_rhs, y_old, &ldv_, NULL);
+            cblas_daxpy(ldv_ * num_rhs, -1.0, y, 1, y_old_, 1);
+            double normy = dlange("F", &dim_, &num_rhs, y_old_, &ldv_, NULL);
             if (normy/normz < tol_) {
                 break;
             }
         }
-        cblas_dcopy(ldv_ * num_rhs, y, 1, y_old, 1);
+        cblas_dcopy(ldv_ * num_rhs, y, 1, y_old_, 1);
     } // for (iter = 0; i < max_iters_; i++)
 
     iter = (iter == max_iters_ ? -1 : iter); 
@@ -213,7 +211,8 @@ BrwnLanczos::BrwnLanczos(const int dim, const int max_iters,
 
 BrwnLanczos::~BrwnLanczos()
 {
-    detail::AlignFree(v_);    
+    detail::AlignFree(v_);
+    detail::AlignFree(y_old_); 
 }
 
 
@@ -256,8 +255,14 @@ bool BrwnLanczos::Init()
     int len_v = max_nrhs_ * (max_iters_ + 1) * ldv_;
     v_ = (double *)detail::AlignMalloc(sizeof(double) * len_v);
     if (NULL == v_) {
+        LOG_ERROR("Failed to allocate memory: %lld.\n", sizeof(double) * len_v);
+        return false;
+    }
+
+    y_old_ = (double *)detail::AlignMalloc(sizeof(double) * max_nrhs_ * ldv_);
+    if (NULL == y_old_) {
         LOG_ERROR("Failed to allocate memory: %lld.\n",
-            sizeof(double) * len_v);
+            sizeof(double) * max_nrhs_ * ldv_);
         return false;
     }
 

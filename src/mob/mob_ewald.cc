@@ -13,6 +13,7 @@
 #include "mob_ewald.h"
 #include "log.h"
 #include "profile.h"
+#include "matrix_io.h"
 
 
 namespace stokesdt{
@@ -112,16 +113,11 @@ void MobEwald::Update(const double *pos, const double *rdi)
     } else {
         LOG_WARN("The MobEwald is not properly initialized\n");
     }
-    FILE *fp;
-    fp = fopen("mob.dat", "w+");
-    for (int i = 0; i < dim_mob_; i++) {
-        for (int j = 0; j < dim_mob_; j++) {
-            fprintf(fp, "%g ", mat_[i * ldm_ + j]);
-        }
-        fprintf(fp, "\n");
-    }
-    fclose(fp);
-    
+#if 0
+    MatrixIO *io = new MatrixIO;
+    io->Write(dim_mob_, dim_mob_, ldm_, mat_, "mob.dat");
+    delete io;
+#endif    
     STOP_TIMER(detail::MOB_TICKS);
 }
 
