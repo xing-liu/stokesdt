@@ -412,5 +412,6 @@ void MoleculeIO::WriteXYZ(const int npos,
     WriteXYZ(npos, box_size, box_size, box_size,
              0, 0.0, ptype, pos, rdi, fp);
 }
+
     
 } // namespace stokesdt

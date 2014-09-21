@@ -9,6 +9,7 @@
 
 #include "brwn_base.h"
 #include "rnd_stream.h"
+#include "mob_base.h"
 
 namespace stokesdt {
 
@@ -56,22 +57,28 @@ class BrwnRandom : public BrwnBase {
     int ldm_;
     /// the number of random vectors
     int num_vecs_;
+    /// the leading dimension of b
+    int ldb_;
     /// the maximum number of right-hand sides
     int max_nrhs_;
     /// the buffer for random vectors
-    double *omega_ = NULL;
+    double *u_ = NULL;
+    /// the buffer for s
+    double *s_ = NULL;
     /// the buffer for V
     double *v_ = NULL;
-    /// the leading dimension of b
-    int ldb_;
     /// the buffer for the first term
     double *first_term_ = NULL;
     /// the buffer for the second term
     double *second_term_ = NULL;
-    /// the buffer for B
-    double *b_ = NULL;
     /// the random number generator
-    RndStream *rnd_stream_;
+    RndStream *rnd_stream_ = NULL;
+    /// the mobility matrix
+    MobBase *mob_ = NULL;
+
+    double *tau_;
+    double *b_;
+    double *temp_;
 };
 
 } // namespace stokesdt

@@ -106,7 +106,7 @@ bool MatrixIO::Compare(const int nrows, const int ncols,
             cblas_daxpy(ncols, -1.0, &mat2[i * ldm2], 1, &diff[i * ldm1], 1);
         }
     }
-
+    
     // dlange is col-major
     double norm0 = dlange("F", &ncols, &nrows, mat1, &ldm1, NULL);
     double norm_diff = dlange("F", &ncols, &nrows, diff, &ldm1, NULL);

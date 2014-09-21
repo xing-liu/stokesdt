@@ -91,7 +91,8 @@ class BDSimBox : public SimBoxBase {
     double *brwn_vec_;
     double *disp_vec_;
 
-    std::vector<ForceBase *> force_;    
+    std::vector<ForceBase *> force_;
+    double *f_ = NULL;
 };
 
 } // namespace stokesdt

@@ -19,6 +19,7 @@
 #include "force_bonded.h"
 #include "force_steric.h"
 #include "rnd_stream.h"
+#include "matrix_io.h"
 
 
 namespace stokesdt {
@@ -48,6 +49,7 @@ BDSimBox::~BDSimBox()
     for (int i = 0; i < num_forces; i++) {
         delete force_[i];
     }
+    detail::AlignFree(f_);
     if (traj_fp_ != NULL) {
         fclose(traj_fp_);
     }
@@ -176,7 +178,7 @@ bool BDSimBox::InitBrwn()
 
 bool BDSimBox::InitForces()
 {
-    ForceBase *f;
+    ForceBase *force;
 
     // bond force
     int num_bonds = mol_io_->LineCount("bond"); 
@@ -191,10 +193,10 @@ bool BDSimBox::InitForces()
             &(bond_cutoff[i]), &(bond_k0[i]));
     }
     if (num_bonds > 0) {
-      f = new BondedForce(npos_, num_bonds,
+      force = new BondedForce(npos_, num_bonds,
                         &bond_id0[0], &bond_id1[0], 
                         &bond_cutoff[0], &bond_k0[0]);
-      force_.push_back(f);
+      force_.push_back(force);
     }
     
     // steric force
@@ -203,8 +205,8 @@ bool BDSimBox::InitForces()
         double steric_k0;
         const char *line = mol_io_->GetLine("steric", 0);
         sscanf(line, "%le %le", &steric_cutoff, &steric_k0);
-        f = new StericForce(npos_, rdi_, Lx_, steric_cutoff, steric_k0);
-        force_.push_back(f);
+        force = new StericForce(npos_, rdi_, Lx_, steric_cutoff, steric_k0);
+        force_.push_back(force);
     } else if (mol_io_->LineCount("steric") > 1) {
         LOG_ERROR("Duplicate \"steric\" lines found\n");
         return false;
@@ -219,6 +221,12 @@ bool BDSimBox::InitForces()
         }
     }
 
+    f_ = (double *)detail::AlignMalloc(sizeof(double) * ldm_);
+    if (NULL == f_) {
+        LOG_ERROR("Failed to allocate memory: %lld.\n", sizeof(double) * ldm_);
+        return false;
+    }
+    
     return true;
 }
 
@@ -286,20 +294,16 @@ void BDSimBox::Advance(int nsteps)
     LOG(3, "        ----------------\n");
     LOG(3, "Num-steps = %d\n\n", nsteps);
     
-    int irhs = 0;
-    int num_forces = force_.size();   
-    __declspec(align(detail::kAlignLen)) double f[ldm_];
-    for (int i = 0; i < nsteps; i++)
-    {
+    int num_forces = force_.size();
+    for (int k = 0; k < nsteps; k++) {
+        int irhs = istep_ % mob_interval_;
         LOG(3, "Start step %10d\n", istep_);
         gettimeofday (&tv1, NULL);
         // each mob interval
-        if (istep_ % mob_interval_ == 0)
-        {
-            irhs = 0;
+        if (0 == irhs) {
             // generate random vectors
-            rnd_stream_->Gaussian(0.0, sqrt(2.0 * delta_t_),
-                                  dim_mob_, mob_interval_, ldm_, brwn_vec_);
+            rnd_stream_->Gaussian(0.0, 1.0, mob_interval_, dim_mob_,
+                                  ldm_, brwn_vec_);
             // build mobility matrix
             mob_->Update(pos_, rdi_);
             // compute Brownian displacements
@@ -307,13 +311,13 @@ void BDSimBox::Advance(int nsteps)
                            ldm_, brwn_vec_, ldm_, disp_vec_);
         }
         double *cur_disp = &(disp_vec_[irhs * ldm_]);
-
         // compute external forces
-        memset(f, 0, sizeof(double) * ldm_);
+        memset(f_, 0, sizeof(double) * ldm_);
         for (int i = 0; i < num_forces; i++) {
-            force_[i]->Accumulate(pos_, rdi_, f);
+            force_[i]->Accumulate(pos_, rdi_, f_);
         }
-        mob_->MulVector(1, delta_t_, ldm_, f, 1.0, ldm_, cur_disp);
+        mob_->MulVector(1, delta_t_, ldm_, f_,
+                        sqrt(2.0 * delta_t_), ldm_, cur_disp);
         
         START_TIMER(detail::PARTICLE_TICKS);
 
@@ -322,8 +326,7 @@ void BDSimBox::Advance(int nsteps)
 
         STOP_TIMER(detail::PARTICLE_TICKS);
 
-        // advance time and steps        
-        irhs++;
+        // advance time and steps
         istep_++;
         cur_time_ += delta_t_;
         
@@ -332,12 +335,14 @@ void BDSimBox::Advance(int nsteps)
         double timepass = tv1.tv_sec + tv1.tv_usec/1e6;
         LOG(3, "    Elapsed time: %.3le secs\n", timepass);
 
-        if (traj_interval_ > 0) {
+        if (traj_interval_ > 0 &&
+            istep_ > traj_start_ &&
+            istep_%traj_interval_ == 0) {
             mol_io_->WriteXYZ(npos_, Lx_, Ly_, Lz_,
                               istep_, cur_time_, NULL,
                               pos_, rdi_, traj_fp_);
         }
-    }        
+    }
 }
 
 } // namespace stokesdt
