@@ -23,7 +23,7 @@ if (nargin > 1):
 # Geometry
 random.seed(SEED);
 
-L = pow(pi*N/3.0/PHI, 1.0/3.0);
+L = pow(4.0*pi*N/3.0/PHI, 1.0/3.0);
 pos = [[random.uniform(0.0, L) for _ in xrange(3)] for _ in xrange(N)]
 print 'Generated random monodisperse suspension, N = %d, PHI = %.6f, L = %.6f' %(N, PHI, L)
 

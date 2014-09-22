@@ -289,6 +289,7 @@ void BDSimBox::Advance(int nsteps)
 {
     struct timeval tv1;
     struct timeval tv2;
+    MatrixIO *matrix_io = new MatrixIO();
     
     LOG(3, "\n        Advance BDSimBox\n");
     LOG(3, "        ----------------\n");
@@ -302,8 +303,14 @@ void BDSimBox::Advance(int nsteps)
         // each mob interval
         if (0 == irhs) {
             // generate random vectors
+            #if 1
             rnd_stream_->Gaussian(0.0, 1.0, mob_interval_, dim_mob_,
                                   ldm_, brwn_vec_);
+            #else
+            printf("read %d %d\n", mob_interval_, dim_mob_);
+            matrix_io->Read("./matlab/z.xyz", mob_interval_, dim_mob_,
+                            ldm_, brwn_vec_);
+            #endif
             // build mobility matrix
             mob_->Update(pos_, rdi_);
             // compute Brownian displacements
@@ -312,18 +319,21 @@ void BDSimBox::Advance(int nsteps)
         }
         double *cur_disp = &(disp_vec_[irhs * ldm_]);
         // compute external forces
-        memset(f_, 0, sizeof(double) * ldm_);
+        memset(f_, 0, sizeof(double) * dim_mob_);
         for (int i = 0; i < num_forces; i++) {
             force_[i]->Accumulate(pos_, rdi_, f_);
         }
         mob_->MulVector(1, delta_t_, ldm_, f_,
                         sqrt(2.0 * delta_t_), ldm_, cur_disp);
-        
         START_TIMER(detail::PARTICLE_TICKS);
 
         // update pos
         cblas_daxpy(npos_ * 3, 1.0, cur_disp, 1, pos_, 1);
-
+#if 0
+        char fname[1024];
+        sprintf(fname, "p%d.dat", istep_);
+        matrix_io->Write(dim_mob_, 1, 1, pos_, fname);
+#endif
         STOP_TIMER(detail::PARTICLE_TICKS);
 
         // advance time and steps
@@ -343,6 +353,8 @@ void BDSimBox::Advance(int nsteps)
                               pos_, rdi_, traj_fp_);
         }
     }
+
+    delete matrix_io;
 }
 
 } // namespace stokesdt
