@@ -1,16 +1,14 @@
 #labels Featured
-TBD
+== Prerequisites ==
 
-= Prerequisites =
+StokesDT runs on x86 based Linux systems with Pentium 4 or more recent processors. To build the source code, StokesDT requires Intel C++ compipler version 13.0 or greater and MKL version 11.0 or greater. To use the Matlab interface, it also requires installing the latest Maltab and the Mex compiler.
 
-StokesDT runs on x86 based Linux systems with Pentium 4 or more recent processors.
-
-= Installation =
+== Installation ==
 
 
-= Running Simulations =
+== Running Simulations ==
 
 
-= Using StokesDT as a Library =
+== Using StokesDT as a Library ==
 
-= Using StokesDT from Matlab =
+== Using StokesDT from Matlab ==
