@@ -84,10 +84,7 @@ The model file contains of a number of predefined "*lines*" that specify the str
 {{{
 par    par_type    radius    charge
 }}}
-where
- * _*par_type*_ is the type of the particle which can match the XYZ file.
- * _*radius*_ is the particle radius
- * _*charge*_ is the charge of the particle
+where _*par_type*_ is the type of the particle which can match the XYZ file, _*radius*_ is the particle radius and _*charge*_ is the charge of the particle
 
  # _*steric*_ line - specifies the steric forces.
 {{{
