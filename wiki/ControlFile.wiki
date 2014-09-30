@@ -84,12 +84,14 @@ The model file contains of a number of predefined "*lines*" that specify the str
 {{{
 par    par_type    radius    charge
 }}}
-where _*par_type*_ is the type of the particle which can match the XYZ file, _*radius*_ is the particle radius and _*charge*_ is the charge of the particle
+where _*par_type*_ is the type of the particle which can match the XYZ file, _*radius*_ is the particle radius, and _*charge*_ is the charge of the particle
 
  # _*steric*_ line - specifies the steric forces.
 {{{
 steric    r0    k0
 }}}
+where _*r0*_ is the cutoff of the steric forces, and _*k0*_ is the steric force constant.
+
  # _*vdw*_ lines - each line specifies a type of van der Waals force and its parameters.
 {{{
 vdw    type1    type2    contantA    constantB
@@ -102,6 +104,7 @@ elec    type1    type2    e
 {{{
 bond    id1    id2    r0     k0
 }}}
+where _*id1* and _*id2*_ are identifiers of particles to be connected by the bond, _*r0*_ is the cutoff of the bond, and _*k0*_ is the bond force constant.
 
 An example of model file:
 {{{
