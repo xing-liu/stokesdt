@@ -36,7 +36,13 @@ To run StokesDT simply use the command _*stokesdt*_ and provide the name of the 
 
 Generally, one will start a simulation with the following command:
 {{{
-./stokesdt --config <config file> --model <model file> --xyz <XYZ file> -n <number of steps to simulate>
+./install/bin/stokesdt --config <config file> --model <model file> --xyz <XYZ file> -n <number of steps to simulate>
+}}}
+
+For more information, one can type:
+{{{
+./install/bin/stokesdt --help
+}}}
 }}}
 
 == Using StokesDT as a Library ==
