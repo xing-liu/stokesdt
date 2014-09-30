@@ -30,9 +30,9 @@ All the libraries, header files and binaries will be installed in the _*install*
 || _*install/tools*_   || auxiliary tools ||
 || _*install/mex*_     || Mex binaries ||
 
-== Running Simulations ==
+== Running StokesDT==
 
-To run StokesDT simply use the command _*stokesdt*_ and provide the name of the input files. StokesDT uses three input control files to specify a simulation. The detailed descriptions of the control files can be found [ConfigFile here].
+To run StokesDT simply use the command _*stokesdt*_ and provide the name of the input files. StokesDT uses three input control files to specify a simulation. A detailed description of the control files can be found [ConfigFile here].
 
 Generally, one will start a simulation with the following command:
 {{{
@@ -47,4 +47,8 @@ For more information, one can type:
 
 == Using StokesDT as a Library ==
 
+StokesDT provides a flexible, object-oriented user interface for the users who want to develop customized hydrodynamic simulation codes. The _*tests*_ directory contains some examples of using the interface and how to build and link the customized codes. A detailed description of the object-oriented interface can be found [API here].
+
 == Using StokesDT from Matlab ==
+
+StokesDT also provides a Mex interface which allows users to use the highly optimized computational kernels of StokesDT with Matlab. A detailed description of the Matlab interface can be found [MexInterface here].
