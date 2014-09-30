@@ -80,11 +80,26 @@ lanczos-tol            1.0e-3
 ===Model File===
 The model file contains of a number of predefined "*lines*" that specify the structure of the studied simulation system. A meaningful line begins with a keyword and parameters. The predefined "*lines*" are listed as follows.
 
- # _*par*_ lines -- each line describes a type of particle.
- # _*steric*_ line -- specifies the steric forces.
- # _*vdw*_ lines
- # _*elec*_ lines
- # _*bond*_ lines
+ # _*par*_ lines - each line describes a type of particle.
+{{{
+par    type    radius    charge
+}}}
+ # _*steric*_ line - specifies the steric forces.
+{{{
+steric    r0    k0
+}}}
+ # _*vdw*_ lines - each line specifies a type of van der Waals force and its parameters.
+{{{
+vdw    type1    type2    contantA    constantB
+}}}
+ # _*elec*_ lines - each line specifies a type of electrostatic force and its parameters.
+{{{
+elec    type1    type2    e
+}}}
+ # _*bond*_ lines - each line define a single bond and its parameters
+{{{
+bond    id1    id2    r0     k0
+}}}
 
 An example of model file:
 {{{
