@@ -91,16 +91,17 @@ where _*par_type*_ is the type of the particle which can match the XYZ file, _*r
 steric    r    k
 }}}
 where _*r*_ is the cutoff of the steric forces, and _*k*_ is the steric force constant.
-<math>2x \times 4y \div 6z + 8
-   - \frac {y}{z^2} = 0</math>
+
  # _*vdw*_ lines - each line specifies a type of van der Waals force and its parameters.
 {{{
 vdw    type1    type2    contantA    constantB
 }}}
+
  # _*elec*_ lines - each line specifies a type of electrostatic force and its parameters.
 {{{
 elec    type1    type2    e
 }}}
+
  # _*bond*_ lines - each line define a single bond and its parameters
 {{{
 bond    id1    id2    r     k
