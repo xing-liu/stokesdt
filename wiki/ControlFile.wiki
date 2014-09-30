@@ -24,77 +24,81 @@ The keywords are defined as follows:
 ||lanczos-tol||float||the requested tolerance||default:1.0e-3||
 
 
-An example of config file.
+An example of config file:
 {{{
 # main control ################################################################
-
 ## the length of time steps
 ## <double>, default: 0.001
 delta-t            0.001
-
 ## the method for computing mobility matrices
 ## <ewald|spme>, default: ewald
 mob-method           ewald
-
 ## the method for computing Brownian displacements
 ## <lanczos|cholesky>, default: cholesky
 brownian-method   cholesky
 
-
 # trajectory ##################################################################
-
 ## the first frame at which trajectories
 ## <int>, default: 0
 traj-startstep         0
-
 ## the interval of outputting trajectories
 ## <int|-1>, default: -1 (not output trajectories) 
 traj-interval           -1
 
-
 # mobility ####################################################################
-
 ## the interval for computing mobility matrices
 ## default: 100
 mob-interval            100
-
 ## the requested tolerance for the Ewald errors
 ## <double>, default: 1.0e-4 
 ewald-tol            1.0e-4
-
 ## the dimension of the FFT mesh for computing SPME
 ## <int>, default: 128
 spme-nfft-grids         128
-
 ## the interpolation order for computing SPME
 ## <int>, default: 4
 spme-porder               4
-
 ## the Ewald parameter for computing SPME
 ## <double>, default: 0.5
 spme-xi                 0.5
-
-
 ## the real-space cutoff for computing SPME
 ## <double>, default: 4.0
 spme-rmax               4.0
 
-
 # Lanczos #####################################################################
-
 ## the maximum number of iterations
 ## <int>, default: 50
 lanczos-maxiters          50
-
 ## the maximum number of right hand sides
 ## <int>, default: 20
 lanczos-maxnrhs            20
-
 ## the requested tolerance
 ## <double>, default: 1.0e-3
 lanczos-tol            1.0e-3
 }}}
 
 ===Model File===
+
+An example of model file:
+{{{
+# par lines (type, radius, charge)
+par A    85.229550     1.0
+par B    66.488380    -1.0
+
+# steric line (r0, k0)
+steric    2.00    125.0
+
+# vdw lines (type1, type2, contantA constantB)
+vdw    A    B    1.0    2.0
+
+# elecstatics lines (type1, type2, e)
+elec    A    B    1.0
+
+# bond lines (id1, id2, r0, k0)
+bond    1    2    3.0    125.0
+bond    2    3    4.0    125.0
+bond    4    5    2.0    100.0
+bond    5    6    3.0    125.0
+}}}
 
 ===XYZ File===
