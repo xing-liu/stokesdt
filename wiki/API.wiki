@@ -1,3 +1,5 @@
+StokesDT provides an object-oriented user interface which can be easily used to develop customized hydrodynamic simulation codes. For each computational kernel of Brownian/Stokesian simulations, StokesDT defines  
+
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] ||Abstract base class for computing brownian displacement vectors||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] ||Abstract base class for computing forces||
