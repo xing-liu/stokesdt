@@ -78,6 +78,13 @@ lanczos-tol            1.0e-3
 }}}
 
 ===Model File===
+The model file contains of a number of predefined "*lines*" that specify the structure of the studied simulation system. A meaningful line begins with a keyword and parameters. The predefined "*lines*" are listed as follows.
+
+ # _*par*_ lines -- each line describes a type of particle.
+ # _*steric*_ line -- specifies the steric forces.
+ # _*vdw*_ lines
+ # _*elec*_ lines
+ # _*bond*_ lines
 
 An example of model file:
 {{{
@@ -124,7 +131,7 @@ An example of XYZ file:
 {{{
 3
 0  0.0  5.008834 5.008834 5.008834
-X    1.141210    3.871684    4.132215
-X    0.583238    4.300058    1.828481
-X    3.368920    3.233168    4.566184
+H    1.141210    3.871684    4.132215
+H    0.583238    4.300058    1.828481
+O    3.368920    3.233168    4.566184
 }}}
