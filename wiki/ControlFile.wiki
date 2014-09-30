@@ -1,0 +1,96 @@
+Three input files are needed to perform simulations with StokesDT. The config file (.cfg) specifies all the simulation parameters, which include for example the length of time steps, the type of the simulation algorithm, the types of methods for building mobility matrices and computing Brownian forces, etc. The model file (.mod) defines the molecular system to be simulated, including the properties of the particles, and the forces between particles. The XYZ file (.xyz) contains the initial positions of the particles.
+
+The config file also specifies the optional output from a simulation, which consists of two types of files. The log file (.log) contains the track of the simulation, performance statistics, error messages and debugging information. Another file, in the XYZ format (.xyz), contains trajectories of particles along the simulation.
+
+
+===Config File===
+The config file contains a number of keywords that allow the users to specify simulations parameters. There are four types of keywords: boolean (true or false), integer, float pointing and string. If a keyword is not specified in the config file, a default value will be used for the keyword. The lines beginning with one or multiple # are comment lines and are not processed by the program. Each line of the config file should contain only one keyword and its value.
+
+The keywords are defined as follows:
+||*Keyword* || *Type* || *Description* || *Value*||
+||delta-t||float||the length of time steps||default:0.001||
+||mob-method||string||the method for computing mobility matrices||<ewald|spme>,default:ewald||
+||brownian-method||string||the method for computing Brownian displacements||<lanczos|cholesky|random>,default:cholesky||
+||traj-startstep||integer||the first frame at which outputs trajectories||default:0||
+||traj-interval||integer||the interval of outputting trajectories||default:-1(not output trajectories)||
+||mob-interval||integer||the interval for computing mobility matrices||default:100||
+||ewald-tol||float||the requested tolerance for the Ewald errors||default:1.0e-4||
+||spme-nfft-grids||integer||the dimension of the FFT mesh for computing SPME||default:128||
+||spme-porder||integer||the interpolation order for computing SPME||default:4||
+||spme-xi||float||the Ewald parameter for computing SPME||default: 0.5||
+||spme-rmax||float||the real-space cutoff for computing SPME||default:4.0||
+||lanczos-maxiters||integer||the maximum number of iterations||default:50||
+||lanczos-maxnrhs||integer||the maximum number of right hand sides||default:20||
+||lanczos-tol||float||the requested tolerance||default:1.0e-3||
+
+
+An example of config file.
+{{{
+# main control ################################################################
+
+## the length of time steps
+## <double>, default: 0.001
+delta-t            0.001
+
+## the method for computing mobility matrices
+## <ewald|spme>, default: ewald
+mob-method           ewald
+
+## the method for computing Brownian displacements
+## <lanczos|cholesky>, default: cholesky
+brownian-method   cholesky
+
+
+# trajectory ##################################################################
+
+## the first frame at which trajectories
+## <int>, default: 0
+traj-startstep         0
+
+## the interval of outputting trajectories
+## <int|-1>, default: -1 (not output trajectories) 
+traj-interval           -1
+
+
+# mobility ####################################################################
+
+## the interval for computing mobility matrices
+## default: 100
+mob-interval            100
+
+## the requested tolerance for the Ewald errors
+## <double>, default: 1.0e-4 
+ewald-tol            1.0e-4
+
+## the dimension of the FFT mesh for computing SPME
+## <int>, default: 128
+spme-nfft-grids         128
+
+## the interpolation order for computing SPME
+## <int>, default: 4
+spme-porder               4
+
+## the Ewald parameter for computing SPME
+## <double>, default: 0.5
+spme-xi                 0.5
+
+
+## the real-space cutoff for computing SPME
+## <double>, default: 4.0
+spme-rmax               4.0
+
+
+# Lanczos #####################################################################
+
+## the maximum number of iterations
+## <int>, default: 50
+lanczos-maxiters          50
+
+## the maximum number of right hand sides
+## <int>, default: 20
+lanczos-maxnrhs            20
+
+## the requested tolerance
+## <double>, default: 1.0e-3
+lanczos-tol            1.0e-3
+}}}
