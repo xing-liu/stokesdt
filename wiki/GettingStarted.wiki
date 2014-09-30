@@ -43,7 +43,6 @@ For more information, one can type:
 {{{
 ./install/bin/stokesdt --help
 }}}
-}}}
 
 == Using StokesDT as a Library ==
 
