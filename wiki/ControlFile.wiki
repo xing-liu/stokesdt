@@ -82,8 +82,13 @@ The model file contains of a number of predefined "*lines*" that specify the str
 
  # _*par*_ lines - each line describes a type of particle.
 {{{
-par    type    radius    charge
+par    par_type    radius    charge
 }}}
+where
+ * _*par_type*_ is the type of the particle which can match the XYZ file.
+ * _*radius*_ is the particle radius
+ * _*charge*_ is the charge of the particle
+
  # _*steric*_ line - specifies the steric forces.
 {{{
 steric    r0    k0
@@ -137,9 +142,9 @@ step_id sim_time Lx Ly Lz
 
 Starting from the third line, each particle is described as:
 {{{
-par_name X Y Z
+par_type X Y Z
 }}}
- * _*par_name*_ is the name of the particle, which can match one "*par*" line in the model file.
+ * _*par_type*_ is the type of the particle, which can match one "*par*" line in the model file.
  * _*X*_, _*Y*_ and _*Z*_ specify the x, y and z coordinates of the particle respectively.
 
 An example of XYZ file:
