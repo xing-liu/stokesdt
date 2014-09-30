@@ -1,16 +1,16 @@
 Current: version 0.2.0
 
-[Changelog#version_0.2.0 version 0.2.0]
-[Changelog#version_0.1.0 version 0.1.0]
+ * [Changelog#version_0.2.0 version 0.2.0]
+ * [Changelog#version_0.1.0 version 0.1.0]
 
-=Version 0.2.0=
+==Version 0.2.0==
  * Adds the polydisperse system support to the SPME code.
  * Adds a test code for SPME.
  * Adds a tool for computing diffusion constants.
- * Adds MobDirect for computing mobility matrices in free boundary conditions.
- * Adds BrwnRandom for computing Brownian displacements using the randomized sampling method.
+ * Adds Mob for computing mobility matrices in free boundary conditions.
+ * Adds Brwn for computing Brownian displacements using the randomized sampling method.
 
-=Version 0.1.0=
+==Version 0.1.0==
  * Supports both the Ewald method and the Smooth Particle Mesh Ewald (SPME) method for computing long range hydrodynamic interactions.
  * Supports both the Cholesky factorization approach and the Krylov subspace method for computing Brownian displacements.
  * Uses Verlet lists to evaluate short-range interactions.
