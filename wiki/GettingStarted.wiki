@@ -22,7 +22,7 @@ make mex
 make tools
 }}}
 
-All the libraries, header files and binaries will be installed in the *install* directory.
+All the libraries, header files and binaries will be installed in the _*install*_ directory.
 ||table||cells|| 
 
 == Running Simulations ==
