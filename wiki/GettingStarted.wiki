@@ -24,11 +24,11 @@ make tools
 
 All the libraries, header files and binaries will be installed in the _*install*_ directory.
 
-|| *install/include* || header files of the StokesDT libraries||
-|| *install/lib* || StokesDT libraries|| 
-|| *install/bin* || main executable|| 
-|| *install/tools* || auxiliary tools|| 
-|| *install/mex* || Matlab Mex binaries|| 
+|| *install/include* || header files ||
+|| *install/lib*     || StokesDT libraries ||
+|| *install/bin*     || main executable ||
+|| *install/tools*   || auxiliary tools ||
+|| *install/mex*     || Mex binaries ||
 
 == Running Simulations ==
 
