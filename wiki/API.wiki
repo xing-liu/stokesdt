@@ -18,14 +18,35 @@ A detailed description of the StokeSDT library and its APIs can be found [http:/
 The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
 
 || Class || Description ||
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_matrix.html MobMatrix]||Abstract base class for explicitly constructing and storing mobilit matrices||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_direct.html, MobDirect]||Computes mobility matrices with free boundary conditions ||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summations||
-||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_matrix.html MobMatrix]||Abstract base class for explicitly constructing and storing mobilit matrices||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_spme.html MobSpme]||Computes mobility matrix using SPME||
 
 An example of the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase]:
 {{{
+// Create a MobEwald object
+MobBase *mob = new MobEwald(npos, rdi, box_size, 1.0e-12);
+if (!mob->Init()) {
+    return false;
+}
 
+// Return the dimension of the Mobility matrix
+int nm = mob->dim();
+int ldm = nm;
+// Update the particle positions
+mob->Update(pos, rdi);
+
+// Return the mobility matrix
+double *mat = (double *)malloc(sizeof(double) * nm * ldm);
+if (mat != NULL) {
+    return false;
+}
+mob->GetMatrix(ldm, mat);
+
+// Multiply the Mobility matrix by a vector
+mob_ewald->MulVector(num_rhs, alpha, ldm, f, beta, ldm, v);
 }}}
 
  
