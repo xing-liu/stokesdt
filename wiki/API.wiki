@@ -150,10 +150,10 @@ int nnz = verlet_list.Init();
 nnz = verlet_list.Build(pos);
 
 // Return short-range interactions in the CSR format
-vector<int> rowptr;
-vector<int> colidx;
+std::vector<int> rowptr (npos + 1);
+std::vector<int> colidx;
 colidx.reserve(nnz);
-verlet_list.GetPairs(&rowptr_[0], &colidx_[0]);
+verlet_list.GetPairs(&rowptr[0], &colidx[0]);
 
 // Destroy the VerletListR object
 delete verlet_list;
