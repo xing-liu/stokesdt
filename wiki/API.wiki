@@ -1,4 +1,4 @@
-StokesDT provides an object-oriented function interface which can be easily used to develop customized hydrodynamic simulation codes. These APIs are wrapped in static libraries, which can be found in _*install/lib*_. For each main computational kernel in Brownian/Stokesian simulations, StokesDT defines a group of C++ classes, and each of them implements a different method for computing the kernel. Each group of classes generally consists of a base class that contains the abstract interface and a number of derived classes that implements the computational kernels. The base classes defined in StokesDT and their descriptions are listed as follows:
+StokesDT provides an object-oriented function interface which can be easily used to develop customized hydrodynamic simulation codes. These APIs are wrapped in static libraries, which can be found in _*install/lib*_. For each main computational kernel in Brownian/Stokesian simulations, StokesDT defines a group of C++ classes, and each of them implements a different method for computing the kernel. Each group of classes generally consists of a base class that contains the abstract interface and a number of derived classes that implements the computational kernels. The base classes defined in StokesDT and their brief descriptions are listed as follows:
 
 || Base class || Description ||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
@@ -15,9 +15,18 @@ A detailed description of the StokeSDT library and its APIs can be found [http:/
  * [API#Computing_Verlet_Cell_List Computing Verlet Cell List]
 
 ==Computing Mobility Matrices==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. 
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
 
-The general usage of these classes is as follows:
+|| Class || Description ||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_direct.html, MobDirect]||Computes mobility matrices with free boundary conditions ||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summations||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_matrix.html MobMatrix]||Abstract base class for explicitly constructing and storing mobilit matrices||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_spme.html MobSpme]||Computes mobility matrix using SPME||
+
+An example of the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase]:
+{{{
+
+}}}
 
  
 ==Computing Brownian Displacements/Forces==
