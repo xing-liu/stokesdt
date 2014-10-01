@@ -24,7 +24,7 @@ The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summations||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_spme.html MobSpme]||Computes mobility matrix using SPME||
 
-An example of the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase]:
+An example of using the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase]:
 {{{
 // Create a MobEwald object
 MobBase *mob = new MobEwald(npos, rdi, box_size, 1.0e-12);
@@ -46,14 +46,60 @@ if (mat != NULL) {
 mob->GetMatrix(ldm, mat);
 
 // Multiply the Mobility matrix by a vector
+// v = alpha * mat + beta * v
 mob_ewald->MulVector(num_rhs, alpha, ldm, f, beta, ldm, v);
 }}}
 
  
 ==Computing Brownian Displacements/Forces==
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] ||Abstract base class for computing brownian displacement vectors||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_chol.html BrwnChol]||Computes Brownian displacement vectors using Cholesky factorization||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_lanczos.html BrwnLanczos]||Compute Brownian displacement vectors using the Krylov subspace method||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_random.html BrwnRandom]||Computes Brownian displacement vectors using randomized sampling||
+
+An example of using the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase]:
+{{{
+// Create a mobility matrix object
+MobEwald *mob = new MobEwald(npos, rdi, box_size, 1.0e-12);
+if (!mob->Init()) {
+    return false;
+}
+
+// Generate a normal distribution random vector
+int nm = mob->dim();
+int ldm = nm;
+double *z = (double *)malloc(sizeof(double) * ldm);
+if (z == NULL) {
+    return false;
+}
+RndStream *rnd = new RndStream(1234);
+if (!rnd->Init()) {
+    return false;
+}
+rnd->Gaussian(0.0, 1.0, 1, nm, ldm, z);
+
+// Create a BrwnLanczos object
+BrwnBase *lanczos = new BrwnLanczos(nm, 100, 10, 1.0e-7);
+assert(lanczos->Init());
+
+// Compute a Brownian displacement vector y 
+double *y = (double *)malloc(sizeof(double) * ldm * num_rhs);
+if (y == NULL) {
+    return false;
+}
+lanczos->Compute(mob, 1, ldm, z, ldm, y);    
+
+// destroy the BrwnLanczos object
+delete lanczos;
+}}}
 
 ==Computing External Forces==
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
 
 ==Generating Random Vectors==
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
 
-==Verlet Cell List==
+==Computing Verlet Cell List==
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
