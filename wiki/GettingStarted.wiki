@@ -11,7 +11,7 @@ make
 }}}
   * To build and run the test programs,
 {{{
-make tests
+make test
 }}}
   * To build the Matlab interface,
 {{{
