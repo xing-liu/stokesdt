@@ -15,7 +15,7 @@ A detailed description of the StokeSDT library and its APIs can be found [http:/
  * [API#Computing_Verlet_Cell_List Computing Verlet Cell List]
 
 ==Computing Mobility Matrices==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute Mobility matrices. These classes and their brief descriptions are listed as follows:
 
 || Class || Description ||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
@@ -24,7 +24,7 @@ The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summations||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_spme.html MobSpme]||Computes mobility matrix using SPME||
 
-An example of using the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase]:
+The following example computes a mobility matrix using the Ewald algorithm.
 {{{
 // Create a MobEwald object
 MobBase *mob = new MobEwald(npos, rdi, box_size, 1.0e-12);
@@ -35,31 +35,35 @@ if (!mob->Init()) {
 // Return the dimension of the Mobility matrix
 int nm = mob->dim();
 int ldm = nm;
+
 // Update the particle positions
 mob->Update(pos, rdi);
 
 // Return the mobility matrix
 double *mat = (double *)malloc(sizeof(double) * nm * ldm);
-if (mat != NULL) {
+if (mat == NULL) {
     return false;
 }
 mob->GetMatrix(ldm, mat);
 
 // Multiply the Mobility matrix by a vector
 // v = alpha * mat + beta * v
-mob_ewald->MulVector(num_rhs, alpha, ldm, f, beta, ldm, v);
+mob->MulVector(num_rhs, alpha, ldm, f, beta, ldm, v);
+
+// destroy the MobEwald object
+delete mob;
 }}}
 
  
 ==Computing Brownian Displacements/Forces==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] and its derived classes can be used to compute Brownian displacements. These classes and their brief descriptions are listed as follows:
 
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] ||Abstract base class for computing brownian displacement vectors||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_chol.html BrwnChol]||Computes Brownian displacement vectors using Cholesky factorization||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_lanczos.html BrwnLanczos]||Compute Brownian displacement vectors using the Krylov subspace method||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_random.html BrwnRandom]||Computes Brownian displacement vectors using randomized sampling||
 
-An example of using the derived classes of [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase]:
+The following example computes a Brownian displacement vector using the Lanczos method.
 {{{
 // Create a mobility matrix object
 MobEwald *mob = new MobEwald(npos, rdi, box_size, 1.0e-12);
@@ -81,25 +85,76 @@ if (!rnd->Init()) {
 rnd->Gaussian(0.0, 1.0, 1, nm, ldm, z);
 
 // Create a BrwnLanczos object
-BrwnBase *lanczos = new BrwnLanczos(nm, 100, 10, 1.0e-7);
+BrwnBase *brwn= new BrwnLanczos(nm, 100, 10, 1.0e-7);
 assert(lanczos->Init());
 
 // Compute a Brownian displacement vector y 
-double *y = (double *)malloc(sizeof(double) * ldm * num_rhs);
+double *y = (double *)malloc(sizeof(double) * ldm);
 if (y == NULL) {
     return false;
 }
-lanczos->Compute(mob, 1, ldm, z, ldm, y);    
+brwn->Compute(mob, 1, ldm, z, ldm, y);    
 
-// destroy the BrwnLanczos object
-delete lanczos;
+// Destroy the BrwnLanczos object
+delete brwn;
+// Destroy the RndStream object
+delete rnd;
+// Destroy the MobEwald object
+delete mob;
 }}}
 
 ==Computing External Forces==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] and its derived classes can be used to compute external forces, e.g., steric forces or bonded forces. These classes and their brief descriptions are listed as follows:
+
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] ||Abstract base class for computing forces||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_steric_force.html StericForce]||Computes steric forces||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_bonded_force.html BondedForce]||Computes bond forces||
+
+The following example computes all the steric forces.
+{{{
+// Create a StericForce object
+ForceBase *steric = new StericForce(npos, rdi, box_size, cutoff, k0);
+if (!steric->Init()) {
+    return false;
+}
+
+// Compute all the steric forces
+int nf = 3 * npos;
+double *f = (double *)malloc(sizeof(double) * nf);
+if (f == NULL) {
+    return false;
+}
+steric->Compute(pos, rdi, f);
+
+// Destroy the StericForce object
+delete steric;
+}}}
 
 ==Generating Random Vectors==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+The class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] can be used to generate random vectors in Gaussian or uniform distribution.
 
 ==Computing Verlet Cell List==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute mobilit matrices. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase] and its derived classes construct Verlet Cell list, which can be used to compute short-range interactions. These classes and their brief descriptions are listed as follows:
+
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase]||Abstract base class for Verlet list||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_r.html VerletListR]||Verlet list for absolute distance||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_s.html VerletListS]||Verlet list for normalized distance||
+
+An example of using Verlet cell list to compute short-range interactions are shown as follows:
+{{{
+// Create a VerletListR object
+VerletListBase *verlet_list = new VerletListR(npos, rdi, box_size, steric_r0_);
+int nnz = verlet_list.Init();
+
+// Update the Verlet list; 
+nnz = verlet_list.Build(pos);
+
+// Return short-range interactions in the CSR format
+vector<int> rowptr;
+vector<int> colidx;
+colidx.reserve(nnz);
+verlet_list.GetPairs(&rowptr_[0], &colidx_[0]);
+
+// Destroy the VerletListR object
+delete verlet_list;
+}}}
