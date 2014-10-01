@@ -15,11 +15,11 @@ make test
 }}}
   * To build the Matlab interface,
 {{{
-make mex
+make matlab
 }}}
   * To build the auxiliary tools,
 {{{
-make tools
+make tool
 }}}
 
 All the libraries, header files and binaries will be installed in the _*install*_ directory.
