@@ -115,6 +115,10 @@ bool MobSpme::Init()
     }
 
     int init_nnzb = verlet_list_.Init();
+    if (init_nnzb <= 0) {
+        LOG_ERROR("Failed to initialize the Verlet list\n");
+        return false;          
+    }
 
     if (!detail::CreateSparseMatrix(npos_, init_nnzb, 3, &real_mat_)) {
         LOG_ERROR("Creating spare real matrix failed\n");
@@ -204,9 +208,6 @@ void MobSpme::Update(const double *pos, const double *rdi)
     detail::ResizeSparseMatrix(nnz, real_mat_);
     verlet_list_.GetPairs(real_mat_->rowbptr, real_mat_->colbidx);
     BuildSparseReal(pos, rdi);
-    int nm = dim();
-    double *mat = (double *)malloc(sizeof(double) * nm * nm);
-    detail::SparseToDense(real_mat_, nm, mat);
 
     STOP_TIMER(detail::MOB_TICKS);
 }

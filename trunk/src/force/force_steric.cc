@@ -88,6 +88,10 @@ bool StericForce::Init()
     LOG(3, "Steric-k0 = %g\n", steric_k0_);
     
     int nnz = verlet_list_.Init();
+    if (nnz <= 0) {
+        LOG_ERROR("Failed to initialize the Verlet list\n");
+        return false;
+    }
     colidx_.reserve(nnz);
 
     return true;

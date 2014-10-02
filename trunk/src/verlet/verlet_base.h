@@ -25,7 +25,7 @@ class VerletListBase {
     /**
      * @brief  Initializes the instance.
      * @return the estimated total number of particle pairs
-     *         with the given cutoff distance
+     *         with the given cutoff distance; 0: failed to initialize
      */
     int Init();
     
