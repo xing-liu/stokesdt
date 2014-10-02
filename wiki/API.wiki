@@ -144,16 +144,16 @@ An example of using Verlet cell list to compute short-range interactions are sho
 {{{
 // Create a VerletListR object
 VerletListBase *verlet_list = new VerletListR(npos, rdi, box_size, steric_r0_);
-int nnz = verlet_list.Init();
+int nnz = verlet_list->Init();
 
 // Update the Verlet list; 
-nnz = verlet_list.Build(pos);
+nnz = verlet_list->Build(pos);
 
 // Return short-range interactions in the CSR format
 std::vector<int> rowptr (npos + 1);
 std::vector<int> colidx;
 colidx.reserve(nnz);
-verlet_list.GetPairs(&rowptr[0], &colidx[0]);
+verlet_list->GetPairs(&rowptr[0], &colidx[0]);
 
 // Destroy the VerletListR object
 delete verlet_list;
