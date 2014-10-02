@@ -89,6 +89,7 @@ int VerletListS::InitPairs(const double *rdi,
         int size = (int)((t1 - t2)/t3 * 0.6) + 1;
         size = (size > npos ? npos : size);
         (*pairs)[i].reserve(size);
+        nnz += size;
     }
 
     return nnz;

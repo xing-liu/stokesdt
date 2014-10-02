@@ -19,16 +19,14 @@ void StericForce::ForceKernel(const double *pos,
     #pragma omp parallel
     {
         #pragma omp for
-        for (int i = 0; i < npos; i++)
-        {
+        for (int i = 0; i < npos; i++) {
             double x1 = pos[3 * i + 0];
             double y1 = pos[3 * i + 1];
             double z1 = pos[3 * i + 2];
             double aa = rdi[i];
             int start = rowptr_[i];
             int end = rowptr_[i + 1];
-            for (int k = start; k < end; k++)
-            {
+            for (int k = start; k < end; k++) {
                 int j = colidx_[k];
                 if (i == j)
                     continue;

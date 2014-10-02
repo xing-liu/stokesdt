@@ -56,7 +56,6 @@ int VerletListBase::Init()
                   "or equal to 0.0: %g.\n", min_radius_);
         return 0;          
     }
-    
     nc1_ = NumCells();    
     cell_size_ = box_size_/nc1_;
     size_t nc3 = size_t(nc1_) * nc1_ * nc1_;
@@ -66,7 +65,6 @@ int VerletListBase::Init()
     cidx_.reserve(npos_);
     pos0_.reserve(npos_ * 3);
     InitSearchIdx();
-
     int maxnnz = InitPairs(&rdi_[0], &pairs_);
 
     return maxnnz;
