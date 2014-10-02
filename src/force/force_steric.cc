@@ -64,7 +64,7 @@ StericForce::StericForce(const int npos,
       steric_k0_(steric_k0),
       steric_r0_(steric_r0),
       box_size_(box_size),
-      rowptr_(npos),
+      rowptr_(npos + 1),
       verlet_list_(npos, rdi, box_size, steric_r0_)
 {
 

@@ -1,4 +1,4 @@
-all: ${LIBTARGET} ${TARGET}
+all: ${LIBTARGET} ${TARGET} ${MEXTARGET}
 
 ifdef LIBTARGET
 CXXFLAGS+=-fPIC
@@ -21,7 +21,12 @@ endif
 
 ifdef TARGET
 ${TARGET}: ${OBJS}
-	${CXX} ${LDFLAGS} ${OBJS} -o $@ ${LIBS}
+	${CXX} ${CXXFLAGS} ${LDFLAGS} ${OBJS} -o $@ ${LIBS}
+endif
+
+ifdef MEXTARGET
+${MEXTARGET}:${SRC}
+	$(MEX) $^ $(MEXFLAGS) ${LIBS} ${MEXLIBS}
 endif
 
 ifdef DESTDIR
@@ -31,16 +36,24 @@ install: all
 	$(CP) lib$(LIBTARGET).* $(DESTDIR)/lib
   endif
   ifdef TARGET
-	$(MKDIR) $(DESTDIR)/bin
-	$(CP) $(TARGET) $(DESTDIR)/bin
+	$(MKDIR) $(DESTDIR)
+	$(CP) $(TARGET) $(DESTDIR)
   endif
   ifdef INSTALLINC
 	$(MKDIR) $(DESTDIR)/include
 	$(CP) $(INSTALLINC) $(DESTDIR)/include
+  endif
+  ifdef BINTARGET
+	$(MKDIR) $(DESTDIR)
+	$(CP) $(BINTARGET) $(DESTDIR)
+  endif
+  ifdef MEXTARGET
+	$(MKDIR) $(DESTDIR)
+	$(CP) *.m $(MEXTARGET) $(DESTDIR)
   endif
 else
 install:
 endif
 
 clean:
-	rm -f *.o *.d *~ *.a *.so ${TARGET}
+	rm -f *.o *.d *~ *.a *.so ${TARGET} ${LIBTARGET} ${MEXTARGET}

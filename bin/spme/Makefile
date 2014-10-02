@@ -5,7 +5,7 @@ TARGET  = run_spme
 SRC     = $(notdir $(wildcard *.cc))
 OBJS    = $(addsuffix .o, $(basename $(SRC)))  
 
-DESTDIR = $(TOPDIR)/install
+DESTDIR = $(TOPDIR)/install/bin
 
 INC = -I. -I$(TOPDIR)/install/include/
 LDFLAGS = -mkl -L$(TOPDIR)/install/lib/

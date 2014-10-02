@@ -1,6 +1,6 @@
-.PHONY: all install clean
+include ../makevars.in
 
-SUBDIR = main spme
+SUBDIR = spme ewald
 
 all:
 	@for dir in $(SUBDIR); \

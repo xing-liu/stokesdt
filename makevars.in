@@ -6,15 +6,22 @@ LD     = xild
 AR     = xiar
 RANLIB = ranlib
 MEX    = mex
+MEXEXT = mexa64
 
 CXXFLAGS  = -O3 -Wall -w2
 CXXFLAGS += -openmp
 CXXFLAGS += -mkl
 CXXFLAGS += -std=c++11
 CXXFLAGS += -Wsign-compare -Wunknown-pragmas -Wreturn-type
-CXXFLAGS += -Wunused-variable -Wuninitialized -Wmissing-prototypes -Wmissing-declarations
+CXXFLAGS += -Wunused-variable -Wuninitialized
+CXXFLAGS += -Wmissing-prototypes -Wmissing-declarations
 CXXFLAGS += -qno-offload
 CXXFLAGS += -DENABLE_PROFILE_
+MKLROOT = /opt/intel/mkl/
+
+MEXFLAGS = CXXFLAGS="-O3 -Wall -fPIC -w2 -openmp -std=c++11 -qno-offload\
+           -I${TOPDIR}/install/include" \
+	   LDFLAGS="-static-intel -mkl -liomp5 -lm"
 
 CP    = cp -f
 RM    = rm -f

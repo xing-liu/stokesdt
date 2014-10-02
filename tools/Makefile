@@ -1,6 +1,6 @@
-.PHONY: all install clean
+include ../makevars.in
 
-SUBDIR = calc_diff
+SUBDIR = calc_diff mol_gen
 
 all:
 	@for dir in $(SUBDIR); \

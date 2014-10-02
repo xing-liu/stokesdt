@@ -83,14 +83,6 @@ class MobDebug {
     /// Returns the mobility matrix into a local buffer
     void GetMatrix(const double *pos, const double *rdi,
                    const int ldm, double *mat);
-
-    /// Returns the real-space part of the mobility matrix into a local buffer
-    void GetRealMatrix(const double *pos, const double *rdi,
-                       const int ldm, double *mat);
-
-    /// Returns the reciprocal-space part of mobility matrix into a local buffer 
-    void GetRecipMatrix(const double *pos, const double *rdi,
-                        const int ldm, double *mat);
     
   private:
     DISALLOW_COPY_AND_ASSIGN(MobDebug);
