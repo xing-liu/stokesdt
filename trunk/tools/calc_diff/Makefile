@@ -5,10 +5,6 @@ TARGET  = calc_diff
 SRC     = $(notdir $(wildcard *.cc))
 OBJS    = $(addsuffix .o, $(basename $(SRC)))  
 
-DESTDIR = $(TOPDIR)/install
-
-INC = -I. -I$(TOPDIR)/install/include/
-LDFLAGS = -mkl -L$(TOPDIR)/install/lib/
-LIBS =  -lstokes_simbox -lstokes_brwn -lstokes_force -lstokes_mob -lstokes_verlet -lstokes_util
+DESTDIR = $(TOPDIR)/install/tools
 
 include $(TOPDIR)/makerules.in

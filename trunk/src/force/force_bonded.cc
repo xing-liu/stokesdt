@@ -39,7 +39,8 @@ bool BondedForce::Init()
 {
     // check inputs and assign rowptr_
     int npos = get_npos();
-    rowptr_.assign (npos + 1, 0);
+    rowptr_.reserve(npos + 1);
+    rowptr_.assign(npos + 1, 0);
     int num_bonds = bonds_.size();
     LOG(3, "\n        Initializes BondedForce\n");
     LOG(3, "        -----------------------\n");    
