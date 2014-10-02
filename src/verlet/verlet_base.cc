@@ -36,17 +36,17 @@ int VerletListBase::Init()
     if (npos_ <= 0) {
         LOG_ERROR("The specified number of paricles is less than"
                   "or equal to 0: %d.\n", npos_);
-        return false;
+        return 0;
     }
     if (box_size_ <= 0.0){
         LOG_ERROR("The specified dimension of the simulation box is less than"
                   "or equal to 0.0: %g.\n", box_size_);
-        return false;        
+        return 0;        
     }
     if (cutoff_ <= 0.0){
         LOG_ERROR("The specified dimension of the simulation box is less than"
                   "or equal to 0.0: %g.\n", cutoff_);
-        return false;        
+        return 0;        
     }
     // get max and min radii
     max_radius_ = *std::max_element(rdi_.begin(), rdi_.end());
@@ -54,7 +54,7 @@ int VerletListBase::Init()
     if (min_radius_ <= 0.0) {
         LOG_ERROR("The specified particle radis is less than"
                   "or equal to 0.0: %g.\n", min_radius_);
-        return false;          
+        return 0;          
     }
     
     nc1_ = NumCells();    
