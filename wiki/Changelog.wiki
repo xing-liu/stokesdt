@@ -1,7 +1,11 @@
-Current: version 0.2.0
+Current: version 0.3.0
 
+ * [Changelog#version_0.3.0 version 0.3.0]
  * [Changelog#version_0.2.0 version 0.2.0]
  * [Changelog#version_0.1.0 version 0.1.0]
+
+==Version 0.3.0==
+ * Adds a Matlab interface
 
 ==Version 0.2.0==
  * Adds the polydisperse system support to the SPME code.
