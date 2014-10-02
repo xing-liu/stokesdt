@@ -10,7 +10,8 @@ StokesDT provides the following functions via the Matlab interface.
     rdi     the array of particle radii
     L       the simulation box size
     tol     the requested tolerance of Ewald errors
-    mode    'full', 'real' or 'recip'
+    mode    'full'(full matrix), 'real'(real-space parts)
+            or 'recip'(reciprocalspace parts)
     xi      the Ewald parameter (optional);
             if not specified, the optimal xi will be
             automatically chosen
@@ -29,11 +30,31 @@ StokesDT provides the following functions via the Matlab interface.
     rdi       the vector of particle radii
     L         the simulation box size
     f         the block of vectors of forces
-    mode      'full', 'real' or 'recip'
+    mode      'full'(real + recip), 'real'(real-space parts)
+              or 'recip'(reciprocalspace parts)
     xi        the Ewald parameter
     rmax      the real-space cutoff
     dim       the dimension of FFT grid
     porder    the interpolation order
   OUTPUT
     v         the block of vectors of velocities
+}}}
+
+
+===Computing Short-range interactions===
+{{{
+>> help compute_verlet
+  [pi, pj] = compute_verlet(pos, rdi, L, cutoff, mode)
+    Compute short-range interactions between all the particles.
+    The particle pairs within the cutoff distance are stored in [pi, pj].
+  INPUT
+    pos     the array of particle coordinates
+    rdi     the array of particle radii
+    L       the simulation box size
+    cutoff  the cutoff
+    mode    'R' (absulote distance) or 'S' (normalized distance)
+
+  OUTPUT
+    pi      the vector of particle identities of pi
+    pj      the vector of particle identities of pj
 }}}
