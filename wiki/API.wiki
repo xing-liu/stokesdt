@@ -1,4 +1,4 @@
-StokesDT provides an object-oriented function interface which can be easily used to develop customized hydrodynamic simulation codes. These APIs are wrapped in static libraries, which can be found in _*install/lib*_. For each main computational kernel in Brownian/Stokesian simulations, StokesDT defines a group of C++ classes, and each of them implements a different method for computing the kernel. Each group of classes generally consists of a base class that contains the abstract interface and a number of derived classes that implements the computational kernels. The base classes defined in StokesDT and their brief descriptions are listed as follows:
+StokesDT provides an object-oriented interface which can be easily used to develop customized hydrodynamic simulation codes. These APIs are wrapped in static libraries, which can be found in _*install/lib*_. For each main computational kernel in Brownian/Stokesian simulations, StokesDT defines a group of C++ classes, and each of them implements a different method for computing the kernel. Each group of classes generally consists of a base class that contains the abstract interface and a number of derived classes that implements the computational kernels. The base classes defined in StokesDT and their brief descriptions are:
 
 || Base class || Description ||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
@@ -7,7 +7,7 @@ StokesDT provides an object-oriented function interface which can be easily used
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_rnd_stream.html RndStream] ||Random number generator||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase] ||Abstract base class for Verlet list||
 
-A detailed description of the StokeSDT library and its APIs can be found [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html here]. The StokesDT library can be used for the following purposes.
+A detailed description of the StokeSDT library and its APIs can be found [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html here]. The StokesDT library can be used for the following purposes:
  * [API#Computing_Mobility_Matrices Computing Mobility Matrices]
  * [API#Computing_Brownian_Displacements/Forces Computing Brownian Displacements/Forces]
  * [API#Computing_External_Forces Computing External Forces]
@@ -15,7 +15,7 @@ A detailed description of the StokeSDT library and its APIs can be found [http:/
  * [API#Computing_Verlet_Cell_List Computing Verlet Cell List]
 
 ==Computing Mobility Matrices==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute Mobility matrices. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute Mobility matrices. These classes and their brief descriptions are:
 
 || Class || Description ||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
@@ -56,7 +56,7 @@ delete mob;
 
  
 ==Computing Brownian Displacements/Forces==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] and its derived classes can be used to compute Brownian displacements. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] and its derived classes can be used to compute Brownian displacements. These classes and their brief descriptions are:
 
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] ||Abstract base class for computing brownian displacement vectors||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_chol.html BrwnChol]||Computes Brownian displacement vectors using Cholesky factorization||
@@ -104,7 +104,7 @@ delete mob;
 }}}
 
 ==Computing External Forces==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] and its derived classes can be used to compute external forces, e.g., steric forces or bonded forces. These classes and their brief descriptions are listed as follows:
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] and its derived classes can be used to compute external forces, e.g., steric forces or bonded forces. These classes and their brief descriptions are:
 
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] ||Abstract base class for computing forces||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_steric_force.html StericForce]||Computes steric forces||
