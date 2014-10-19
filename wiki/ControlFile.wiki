@@ -1,10 +1,10 @@
-Three input files are needed to perform simulations with StokesDT. The [ControlFile#Config_File config file] (.cfg) specifies all the simulation parameters, which include for example the length of time steps, the type of the simulation algorithm, the types of methods for building mobility matrices and computing Brownian forces, etc. The [ControlFile#Model_File model file] (.mod) defines the molecular system to be simulated, including the properties of the particles, and the forces between particles. The [ControlFile#XYZ_File XYZ file] (.xyz) contains the initial positions of the particles.
+Three input files are needed to perform simulations with StokesDT. The [ControlFile#Config_File config file] (.cfg) specifies all the simulation parameters, including the time step length, the type of the simulation algorithm, the types of methods for building mobility matrices and computing Brownian forces, etc. The [ControlFile#Model_File model file] (.mod) defines the molecular system to be simulated, including the properties of the particles, and the forces between particles. The [ControlFile#XYZ_File XYZ file] (.xyz) contains the initial positions of the particles.
 
-The config file also specifies the optional output from a simulation, which consists of two types of files. The log file (.log) contains the track of the simulation, performance statistics, error messages and debugging information. Another file, in the XYZ format (.xyz), contains trajectories of particles along the simulation.
+The config file also specifies the optional output from a simulation, which consists of two types of files. The log file (.log) is a log of the simulation, with performance statistics, error messages and debugging information. The trajectory file, in XYZ format (.xyz), contains the positions of the particles in the simulation at user-defined intervals.
 
 
 ===Config File===
-The config file contains a number of keywords that allow the users to specify simulations parameters. There are four types of keywords: boolean (true or false), integer, float pointing and string. If a keyword is not specified in the config file, a default value will be used for the keyword. The lines beginning with one or multiple # are comment lines and are not processed by the program. Each line of the config file should contain only one keyword and its value.
+The config file uses keyword-value pairs to specify simulation parameters. There are four types of keywords: boolean (true or false), integer, float (real floating point number), and string. If a keyword is not specified in the config file, a default value will be used for that keyword. The lines beginning with one or multiple # are comment lines and are not processed by the program. Each line of the config file should contain only one keyword and its value.
 
 The keywords are defined as follows:
 ||*Keyword* || *Type* || *Description* || *Value*||
@@ -24,7 +24,7 @@ The keywords are defined as follows:
 ||lanczos-tol||float||the requested tolerance||default:1.0e-3||
 
 
-An example of config file:
+An example config file:
 {{{
 # main control ################################################################
 ## the length of time steps
