@@ -66,12 +66,12 @@ All the libraries, header files and binaries will be installed in the _*install*
 
 To run StokesDT simply use the command _*stokesdt*_ and provide the name of the input files. StokesDT uses three input control files to specify a simulation. A detailed description of the control files can be found [ConfigFile here].
 
-Generally, one will start a simulation with the following command:
+Generally, start a simulation with the following command:
 {{{
 ./install/bin/stokesdt --config <config file> --model <model file> --xyz <XYZ file> -n <number of steps to simulate>
 }}}
 
-For more information, one can type:
+For more information:
 {{{
 ./install/bin/stokesdt --help
 }}}
