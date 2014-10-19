@@ -108,7 +108,7 @@ bond    id1    id2    r     k
 }}}
 where _*id1* and _*id2*_ are identifiers of particles to be connected by the bond, _*r*_ is the cutoff of the bond, and _*k*_ is the bond force constant.
 
-An example of model file:
+An example model file:
 {{{
 # par lines (type, radius, charge)
 par A    85.229550     1.0
@@ -133,14 +133,14 @@ bond    5    6    3.0    125.0
 ===XYZ File===
 The XYZ file contains the initial positions of particles. The XYZ file format used in StokesDT is compatible with the standard XYZ format.
 
-The first line specifies the number of particles. The second line of a XYZ file is the optional comment line, which are used by StokesDT to specify the step number, the simulation time and the dimensions of the simulation box. The general form of the comment line in StokesDT is as follows:
+The first line specifies the number of particles. The second line of a XYZ file is the optional comment line, which is used by StokesDT to specify the step number, the simulation time and the dimensions of the simulation box. The general form of the comment line in StokesDT is:
 
 {{{
 step_id sim_time Lx Ly Lz
 }}}
  * _*step_id*_ is the step number
  * _*sim_time*_ is the current simulation time
- * _*Lx*_, _*Ly*_ and _*Lz*_ specify the dimensions of the simulation box along x, y and z directions respectively.
+ * _*Lx*_, _*Ly*_ and _*Lz*_ specify the dimensions of the simulation box along x, y and z directions, respectively.
 
 Starting from the third line, each particle is described as:
 {{{
@@ -149,7 +149,7 @@ par_type X Y Z
  * _*par_type*_ is the type of the particle, which can match one "*par*" line in the model file.
  * _*X*_, _*Y*_ and _*Z*_ specify the x, y and z coordinates of the particle respectively.
 
-An example of XYZ file:
+An example XYZ file:
 {{{
 3
 0  0.0  5.008834 5.008834 5.008834
