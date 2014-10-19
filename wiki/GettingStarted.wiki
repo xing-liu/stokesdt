@@ -33,7 +33,7 @@ RM    = rm -f
 MKDIR = mkdir -p
 }}}
 
-To find the proper value of _*MEXEXT*_, run the funtion _*mexext()*_ in Matlab.
+To find the proper value of _*MEXEXT*_, run the function _*mexext()*_ in Matlab.
 
 Then, you can run the following the commands to build StokesDT.
 
