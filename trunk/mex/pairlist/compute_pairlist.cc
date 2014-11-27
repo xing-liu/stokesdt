@@ -17,8 +17,8 @@ using namespace stokesdt;
  * prhs[3]: cutoff(1 x 1)  the cutoff
  * prhs[4]: mode(1 x 1)    'R' (absulote distance) or 'S' (normalized distance)
  *      
- * plhs[0]: pi             the vector of particle identities of pi
- * plhs[1]: pj             the vector of particle identities of pj
+ * plhs[0]: indi             the vector of source particle identities
+ * plhs[1]: indj             the vector of destination particle identities
  */
 void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {    
