@@ -5,14 +5,14 @@ StokesDT provides an object-oriented interface which can be easily used to devel
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_brwn_base.html BrwnBase] ||Abstract base class for computing brownian displacement vectors||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_force_base.html ForceBase] ||Abstract base class for computing forces||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_rnd_stream.html RndStream] ||Random number generator||
-|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase] ||Abstract base class for Verlet list||
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase] ||Abstract base class for Pair list||
 
 A detailed description of the StokeSDT library and its APIs can be found [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html here]. The StokesDT library can be used for the following purposes:
  * [API#Computing_Mobility_Matrices Computing Mobility Matrices]
  * [API#Computing_Brownian_Displacements/Forces Computing Brownian Displacements/Forces]
  * [API#Computing_External_Forces Computing External Forces]
  * [API#Generating_Random_Vectors Generating Random Vectors]
- * [API#Computing_Verlet_Cell_List Computing Verlet Cell List]
+ * [API#Computing_Pair_List Computing Pair List]
 
 ==Computing Mobility Matrices==
 The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] and its derived classes can be used to compute Mobility matrices. These classes and their brief descriptions are:
@@ -133,28 +133,28 @@ delete steric;
 ==Generating Random Vectors==
 The class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] can be used to generate random vectors in Gaussian or uniform distribution.
 
-==Computing Verlet Cell List==
-The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase] and its derived classes construct Verlet Cell list, which can be used to compute short-range interactions. These classes and their brief descriptions are listed as follows:
+==Computing Pair List==
+The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase] and its derived classes construct pair list, which can be used to compute short-range interactions. These classes and their brief descriptions are listed as follows:
 
-|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_base.html VerletListBase]||Abstract base class for Verlet list||
-||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_r.html VerletListR]||Verlet list for absolute distance||
-||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_verlet_list_s.html VerletListS]||Verlet list for normalized distance||
+|| [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase]||Abstract base class for Pair list||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_r.html PairListR]||Pair list for absolute distance||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_s.html PairListS]||Pair list for normalized distance||
 
-An example of using Verlet cell list to compute short-range interactions are shown as follows:
+An example of using Pair cell list to compute short-range interactions are shown as follows:
 {{{
-// Create a VerletListR object
-VerletListBase *verlet_list = new VerletListR(npos, rdi, box_size, steric_r0_);
-int nnz = verlet_list->Init();
+// Create a PairListR object
+PairListBase *pair_list = new PairListR(npos, rdi, box_size, steric_r0_);
+int nnz = pair_list->Init();
 
-// Update the Verlet list; 
-nnz = verlet_list->Build(pos);
+// Update the Pair list; 
+nnz = pair_list->Build(pos);
 
 // Return short-range interactions in the CSR format
 std::vector<int> rowptr (npos + 1);
 std::vector<int> colidx;
 colidx.reserve(nnz);
-verlet_list->GetPairs(&rowptr[0], &colidx[0]);
+pair_list->GetPairs(&rowptr[0], &colidx[0]);
 
-// Destroy the VerletListR object
-delete verlet_list;
+// Destroy the PairListR object
+delete pair_list;
 }}}
