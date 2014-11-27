@@ -44,9 +44,9 @@ StokesDT provides the following functions via the Matlab interface.
 ===Computing Short-range interactions===
 {{{
 >> help compute_pairlist
-  [pi, pj] = compute_pairlist(pos, rdi, L, cutoff, mode)
+  [indi, indj] = compute_pairlist(pos, rdi, L, cutoff, mode)
     Compute short-range interactions between all the particles.
-    The particle pairs within the cutoff distance are stored in [pi, pj].
+    The particle pairs within the cutoff distance are stored in [indi, indj].
   INPUT
     pos     the array of particle coordinates
     rdi     the array of particle radii
@@ -55,6 +55,6 @@ StokesDT provides the following functions via the Matlab interface.
     mode    'R' (absulote distance) or 'S' (normalized distance)
 
   OUTPUT
-    pi      the vector of particle identities of pi
-    pj      the vector of particle identities of pj
+    indi      the vector of source particle identities
+    indj      the vector of destination particle identities
 }}}
