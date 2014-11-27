@@ -1,5 +1,5 @@
-function [pi, pj] = compute_verlet(pos, rdi, L, cutoff, mode)
-% [pi, pj] = compute_verlet(pos, rdi, L, cutoff, mode)
+function [indi, indj] = compute_verlet(pos, rdi, L, cutoff, mode)
+% [indi, indj] = compute_verlet(pos, rdi, L, cutoff, mode)
 %   Compute list of all pairs of particles within a distance "cutoff"
 %   of each other.  Periodic boundary conditions are used.
 %   Output particle indices use base 0 and range from 0 to npos-1.
@@ -15,5 +15,5 @@ function [pi, pj] = compute_verlet(pos, rdi, L, cutoff, mode)
 %   mode    'R' (absolute distance) or 'S' (normalized distance)
 %
 % OUTPUT
-%   pi      the vector of particle indices (first of pair)
-%   pj      the vector of particle indices (second of pair)
+%   indi      the vector of source particle indices (first of pair)
+%   indj      the vector of destination particle indices (second of pair)
