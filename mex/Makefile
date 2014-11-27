@@ -1,6 +1,6 @@
 include ../makevars.in
 
-SUBDIR = spme ewald verlet
+SUBDIR = spme ewald pairlist
 
 all:
 	@for dir in $(SUBDIR); \
