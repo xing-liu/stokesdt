@@ -16,6 +16,7 @@
 #include "mob_ewald.h"
 #include "brwn_lanczos.h"
 #include "brwn_chol.h"
+#include "brwn_random.h"
 #include "force_bonded.h"
 #include "force_steric.h"
 #include "rnd_stream.h"
@@ -32,7 +33,8 @@ BDSimBox::BDSimBox(char *config_file,
                    char *xyz_file)
     : config_file_(config_file),
       model_file_(model_file),
-      xyz_file_(xyz_file)
+      xyz_file_(xyz_file),
+      f_(NULL)
 {
 
 }
@@ -132,6 +134,8 @@ bool BDSimBox::InitBrwn()
         brwn_method_ = BRWN_CHOL;
     } else if (strcmp(str_brwn, "lanczos") == 0) {
         brwn_method_ = BRWN_LANCZOS;
+    } else if (strcmp(str_brwn, "random") == 0) {
+        brwn_method_ = BRWN_RANDOM;
     } else {
         brwn_method_ = BRWN_CHOL;
     }
@@ -146,6 +150,10 @@ bool BDSimBox::InitBrwn()
         int max_nrhs = mol_io_->GetIntKey("lanczos-maxnrhs", 1, INT_MAX, 20);
         double tol = mol_io_->GetFloatKey("lanczos-tol", 0.0, DBL_MAX, 1.0e-3);
         brwn_ = new BrwnLanczos(dim_mob_, max_iters, max_nrhs, tol);
+    } else if (BRWN_RANDOM == brwn_method_) {
+        int num_vecs = mol_io_->GetIntKey("random-numvecs", 1, INT_MAX, 30);
+        int max_nrhs = mol_io_->GetIntKey("random-maxnrhs", 1, INT_MAX, 50);
+        brwn_ = new BrwnRandom(dim_mob_, num_vecs, max_nrhs);
     }
 
     if (!brwn_->Init()) {

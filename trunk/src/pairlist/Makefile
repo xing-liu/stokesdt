@@ -1,6 +1,6 @@
 include ../../makevars.in
 
-LIBTARGET  = stokes_verlet
+LIBTARGET  = stokes_pairlist
 
 SRC        = $(notdir $(wildcard *.cc))
 LIBOBJS    = $(addsuffix .o, $(basename $(SRC)))  

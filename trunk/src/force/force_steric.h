@@ -8,14 +8,14 @@
 
 
 #include <vector>
-#include "verlet_s.h"
+#include "pair_s.h"
 #include "force_base.h"
 
 
 namespace stokesdt {
 
 /** @class  StericForce
- *  @brief  Computes steric forces using VerletListS
+ *  @brief  Computes steric forces using PairListS
  */
 class StericForce : public ForceBase {
   public:
@@ -24,7 +24,7 @@ class StericForce : public ForceBase {
      *
      * Constructs a new StericForce instance.
      * <p>
-     * VerletListS is used to compute the short-range steric forces. 
+     * PairListS is used to compute the short-range steric forces. 
      * <p>
      * The periodic bondary condition is assumed.
      * The following harmonic function is
@@ -84,8 +84,8 @@ class StericForce : public ForceBase {
     double steric_k0_;
     /// the dimension of the simulation box
     double box_size_;
-    /// the VerletListS instance for computing steric forces
-    VerletListS verlet_list_;
+    /// the PairListS instance for computing steric forces
+    PairListS pair_list_;
     /// the array of row pointers for storing the interactions
     std::vector<int> rowptr_;
     /// the array of column indices for storing the interations

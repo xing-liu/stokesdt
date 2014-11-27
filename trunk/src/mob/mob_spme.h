@@ -10,7 +10,7 @@
 #include "mob_base.h"
 #include "spme.h"
 #include "sparse.h"
-#include "verlet_r.h"
+#include "pair_r.h"
 
 
 namespace stokesdt {
@@ -103,7 +103,7 @@ class MobSpme : public MobBase {
     /// the number of particles
     int npos_;
     /// the dimension of the mobility matrix 
-    int dim_mob_ = 0;
+    int dim_mob_;
     /// the array of particle radii
     std::vector<double> rdi_;
     /// the dimension of the simulation box
@@ -117,11 +117,11 @@ class MobSpme : public MobBase {
     /// the real-space cutoff
     double rmax_;
     /// the pointer to the real-space mobility matrix
-    detail::SparseMatrix *real_mat_ = NULL;
+    detail::SparseMatrix *real_mat_;
     /// the pointer to the SPME engine
-    detail::SpmeEngine *spme_ = NULL;
-    /// the VerletListR instance for computing real-space sums
-    VerletListR verlet_list_;
+    detail::SpmeEngine *spme_;
+    /// the PairListR instance for computing real-space sums
+    PairListR pair_list_;
 };
 
 } // namespace stokesdt

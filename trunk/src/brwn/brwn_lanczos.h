@@ -99,11 +99,11 @@ class BrwnLanczos : public BrwnBase {
     /// the dimension of the mobility matrix
     int dim_;
     /// the buffer storing the Krolev sequence
-    double *v_ = NULL;
+    double *v_;
     /// the leading dimension of \c v_
     int ldv_;
     /// the buffer for old y
-    double *y_old_ = NULL;
+    double *y_old_;
 };
 
 } // namespace stokesdt

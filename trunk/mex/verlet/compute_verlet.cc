@@ -3,8 +3,8 @@
 #include <getopt.h>
 #include <string.h>
 
-#include "verlet_r.h"
-#include "verlet_s.h"
+#include "pair_r.h"
+#include "pair_s.h"
 #include "mex.h"
 
 
@@ -66,21 +66,21 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
         mexErrMsgTxt("compute_ewald.m: invalid input.\n");
     }
     
-    // Create Verlet list
-    VerletListBase *verlet;
+    // Create Pair list
+    PairListBase *pair;
     if (strcmp(mode, "R") == 0) {
-        verlet = new VerletListR(npos, rdi, L, cutoff);
+        pair = new PairListR(npos, rdi, L, cutoff);
     } else if (strcmp(mode, "S") == 0) {      
-        verlet = new  VerletListS(npos, rdi, L, cutoff);
+        pair = new  PairListS(npos, rdi, L, cutoff);
     } else {        
         mexErrMsgTxt("compute_ewald.m: invalid input.\n");
     }
 
-    if (verlet->Init() <= 0) {
+    if (pair->Init() <= 0) {
         mexErrMsgTxt("compute_ewald.m: failed to initialize"
                      " the compute engine.\n");    
     }
-    int nnz = verlet->Build(pos);
+    int nnz = pair->Build(pos);
       
     // Write plhs[0], plhs[1]
     plhs[0] = mxCreateNumericMatrix(nnz, 1, mxINT32_CLASS, mxREAL);
@@ -88,7 +88,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     int *id1 = (int *)mxGetPr(plhs[0]);
     int *id2 = (int *)mxGetPr(plhs[1]);
     std::vector<int> rowptr (npos + 1);
-    verlet->GetPairs(&rowptr[0], id2);
+    pair->GetPairs(&rowptr[0], id2);
     for (int i = 0; i < npos; i++) {
         int start = rowptr[i];
         int end = rowptr[i + 1];
@@ -97,5 +97,5 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
         }
     }
     
-    delete verlet;
+    delete pair;
 }

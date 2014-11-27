@@ -1,6 +1,6 @@
 /**
- * @file   verlet_r.h
- * @brief  VerletListR class definition
+ * @file   pair_r.h
+ * @brief  PairListR class definition
  */
 
 #ifndef VERLET_R_H_
@@ -8,39 +8,39 @@
 
 
 #include <vector>
-#include "verlet_base.h"
+#include "pair_base.h"
 
 
 namespace stokesdt{
 
 /** 
- * @class  VerletListR
- * @brief  Verlet list for absolute distance
+ * @class  PairListR
+ * @brief  Pair list for absolute distance
  *
- * VerletListR is a tool for finding all particle pairs within
+ * PairListR is a tool for finding all particle pairs within
  * a given cutoff distance, which can be used to compute short-range
  * interactions between particles.
  * 
  */
-class VerletListR : public VerletListBase {
+class PairListR : public PairListBase {
   public:
     /**
      * @brief Class constructor
      * 
-     * Constructs a new VerletListR instance.
+     * Constructs a new PairListR instance.
      *
      * @param[in] npos      the number of particles
      * @param[in] rdi       the array of particle radii
      * @param[in] box_size  the dimension of the simulation box
      * @param[in] cutoff    the cutoff distance
      */
-    VerletListR(const int npos,
+    PairListR(const int npos,
                 const double *rdi,
                 const double box_size,
                 const double cutoff);
 
-    /// @copydoc VerletListBase::~VerletListR()
-    virtual ~VerletListR();
+    /// @copydoc PairListBase::~PairListR()
+    virtual ~PairListR();
 
   private:
     /** \struct  SearchIdxR
@@ -61,19 +61,19 @@ class VerletListR : public VerletListBase {
     std::vector<SearchIdxR> search_idx_;
         
   private:
-    DISALLOW_COPY_AND_ASSIGN(VerletListR);
+    DISALLOW_COPY_AND_ASSIGN(PairListR);
 
-    /// @copydoc VerletListBase::NumCells()
+    /// @copydoc PairListBase::NumCells()
     virtual int NumCells();
 
-    /// @copydoc VerletListBase::InitSearchIdx()
+    /// @copydoc PairListBase::InitSearchIdx()
     virtual void InitSearchIdx();
 
-    /// @copydoc VerletListBase::InitPairs()
+    /// @copydoc PairListBase::InitPairs()
     virtual int InitPairs(const double *rdi,
                           std::vector<std::vector<int> > *pairs);
 
-    /// @copydoc VerletListBase::FindPairs()
+    /// @copydoc PairListBase::FindPairs()
     virtual int FindPairs(const double *pos,
                           const double *rdi,
                           std::vector<std::vector<int> > *pairs);

@@ -751,18 +751,18 @@ static void ComputeSpmeRecip_(const SpmeEngine *spme,
                    vin, ld3, grid);
 
             // forward fft
-            DftiComputeForward (spme->fwhandle, &(grid[0 * ld3]));
-            DftiComputeForward (spme->fwhandle, &(grid[1 * ld3]));
-            DftiComputeForward (spme->fwhandle, &(grid[2 * ld3]));
+            DftiComputeForward(spme->fwhandle, &(grid[0 * ld3]));
+            DftiComputeForward(spme->fwhandle, &(grid[1 * ld3]));
+            DftiComputeForward(spme->fwhandle, &(grid[2 * ld3]));
 
             // apply influence
             ApplyInfluence(0, dim, spme->map, spme->lm2,
                            ld1, ld2, ld3, grid);
 
             // backward fft
-            DftiComputeBackward (spme->bwhandle, &(grid[0 * ld3]));
-            DftiComputeBackward (spme->bwhandle, &(grid[1 * ld3]));
-            DftiComputeBackward (spme->bwhandle, &(grid[2 * ld3]));
+            DftiComputeBackward(spme->bwhandle, &(grid[0 * ld3]));
+            DftiComputeBackward(spme->bwhandle, &(grid[1 * ld3]));
+            DftiComputeBackward(spme->bwhandle, &(grid[2 * ld3]));
 
             // interpolate
             Interpolate(npos, NULL, porder3, P, ldP, ind, ldind,

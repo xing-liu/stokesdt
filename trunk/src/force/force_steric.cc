@@ -63,7 +63,7 @@ StericForce::StericForce(const int npos,
       steric_r0_(steric_r0),
       box_size_(box_size),
       rowptr_(npos + 1),
-      verlet_list_(npos, rdi, box_size, steric_r0_)
+      pair_list_(npos, rdi, box_size, steric_r0_)
 {
 
 }
@@ -85,9 +85,9 @@ bool StericForce::Init()
     LOG(3, "Steric-r0 = %g\n", steric_r0_);
     LOG(3, "Steric-k0 = %g\n", steric_k0_);
     
-    int nnz = verlet_list_.Init();
+    int nnz = pair_list_.Init();
     if (nnz <= 0) {
-        LOG_ERROR("Failed to initialize the Verlet list\n");
+        LOG_ERROR("Failed to initialize the Pair list\n");
         return false;
     }
     colidx_.reserve(nnz);
@@ -100,10 +100,10 @@ void StericForce::Accumulate(const double *pos, const double *rdi, double *f)
 {
    START_TIMER(detail::STERIC_TICKS);
    
-   // update Verlet list
-   int nnz = verlet_list_.Build(pos);
+   // update Pair list
+   int nnz = pair_list_.Build(pos);
    colidx_.reserve(nnz);
-   verlet_list_.GetPairs(&rowptr_[0], &colidx_[0]);
+   pair_list_.GetPairs(&rowptr_[0], &colidx_[0]);
 
    // comput steric forces
    ForceKernel(pos, rdi, f);

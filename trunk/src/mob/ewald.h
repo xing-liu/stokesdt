@@ -28,27 +28,27 @@ typedef struct EwaldTable {
     /// the number of reciprocal-space meshes
     int nk;
     /// the real-space <code>lx</code> table
-    double *rlx_tbl  = NULL;
+    double *rlx_tbl;
     /// the real-space <code>ly</code> table
-    double *rly_tbl  = NULL;
+    double *rly_tbl;
     /// the real-space <code>lz</code> table
-    double *rlz_tbl  = NULL;
+    double *rlz_tbl;
     /// the real-space <code>ex</code> table
-    double *ex_tbl   = NULL;
+    double *ex_tbl;
     /// the real-space <code>ey</code> table
-    double *ey_tbl   = NULL;
+    double *ey_tbl;
     /// the real-space <code>ez</code> table
-    double *ez_tbl   = NULL;
+    double *ez_tbl;
     /// the reciprocal-space <code>k</code> table
-    double *k_tbl    = NULL;
+    double *k_tbl;
     /// the reciprocal-space <code>k1</code> table
-    double *k1_tbl   = NULL;
+    double *k1_tbl;
     /// the reciprocal-space <code>k2</code> table
-    double *k2_tbl   = NULL;
+    double *k2_tbl;
     /// the reciprocal-space <code>k3</code> table
-    double *k3_tbl   = NULL;
+    double *k3_tbl;
     /// the reciprocal-space <code>kexp</code> table
-    double *kexp_tbl = NULL;
+    double *kexp_tbl;
 } EwaldTable;
 
 

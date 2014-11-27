@@ -1,18 +1,18 @@
 /**
- * @file   verlet_base.cc
- * @brief  VerletListBase class implementation
+ * @file   pair_base.cc
+ * @brief  PairListBase class implementation
  */
 
 #include <cmath>
 #include <omp.h>
 #include <algorithm>
 #include "log.h"
-#include "verlet_base.h"
+#include "pair_base.h"
 
 
 namespace stokesdt {
 
-VerletListBase::VerletListBase(const int npos,
+PairListBase::PairListBase(const int npos,
                                const double *rdi,
                                const double box_size,
                                const double cutoff)
@@ -25,13 +25,13 @@ VerletListBase::VerletListBase(const int npos,
 }
 
 
-VerletListBase::~VerletListBase()
+PairListBase::~PairListBase()
 {
 
 }
 
 
-int VerletListBase::Init()
+int PairListBase::Init()
 {
     if (npos_ <= 0) {
         LOG_ERROR("The specified number of paricles is less than"
@@ -71,7 +71,7 @@ int VerletListBase::Init()
 }
 
 
-void VerletListBase::ConstructCellList(const double *pos,
+void PairListBase::ConstructCellList(const double *pos,
                                        const double *rdi)
 {
     #pragma omp parallel
@@ -115,7 +115,7 @@ void VerletListBase::ConstructCellList(const double *pos,
 }
 
 
-int VerletListBase::Build(const double *pos)
+int PairListBase::Build(const double *pos)
 {
     ConstructCellList(pos, &rdi_[0]);
     int nnz = FindPairs(pos, &rdi_[0], &pairs_);
@@ -123,7 +123,7 @@ int VerletListBase::Build(const double *pos)
 }
 
 
-void VerletListBase::GetPairs(int *rowptr, int *colidx)
+void PairListBase::GetPairs(int *rowptr, int *colidx)
 {
     rowptr[0] = 0;
     for (int i = 0; i < npos_; i++) {

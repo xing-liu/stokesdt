@@ -13,7 +13,16 @@
 namespace stokesdt {
 
 BrwnRandom::BrwnRandom(const int dim, const int num_vecs, const int max_nrhs)
-    : dim_(dim), num_vecs_(num_vecs), max_nrhs_(max_nrhs)
+    : dim_(dim),
+      num_vecs_(num_vecs),
+      max_nrhs_(max_nrhs),
+      u_(NULL),
+      s_(NULL),
+      v_(NULL),
+      first_term_(NULL),
+      second_term_(NULL),
+      rnd_stream_(NULL),
+      mob_(NULL)
 {
 
 }
@@ -152,99 +161,109 @@ void BrwnRandom::Compute(MobBase *mob, const int num_rhs,
                     dim_, num_vecs_, num_vecs_, 1.0, v_, ldm_, b_, ldb_,
                     0.0, u_, ldm_);
     }
-    
-    // compute brownian forces
-    if (num_rhs == 1) {
-        // temp = u'*z
-        cblas_dgemv(CblasRowMajor, CblasNoTrans,
-                    num_vecs_, dim_, 1.0,
-                    u_, ldm_, z, 1, 0.0, temp_, 1);
-        // first_term = u*(s*temp)        
-        for (int i = 0; i < num_vecs_; i++) {
-            temp_[i] *= s_[i];
-        }
-        cblas_dgemv(CblasColMajor, CblasNoTrans,
-                    dim_, num_vecs_, 1.0,
-                    u_, ldm_, temp_, 1, 0.0, first_term_, 1);
-        // second_term = z - v*(v'*z)
-        cblas_dgemv(CblasRowMajor, CblasNoTrans,
-                    num_vecs_, dim_, 1.0,
-                    v_, ldm_, z, 1, 0.0, temp_, 1);
-        cblas_dgemv(CblasColMajor, CblasNoTrans,
-                    dim_, num_vecs_, 1.0,
-                    v_, ldm_, temp_, 1, 0.0, second_term_, 1);
-        cblas_daxpy(ldm_, -1.0, z, 1, second_term_, 1);       
-        // beta2 = z'*M*z
-        mob_->MulVector(1, 1.0, ldz, z, 0.0, ldy, y);
-        double beta2 = cblas_ddot(dim_, z, 1, y, 1);
-        // a = second_term'*second_term
-        double a = cblas_ddot(dim_, second_term_, 1, second_term_, 1);
-        // b = 2*first_term'*second_term
-        double b = -2.0 * cblas_ddot(dim_, first_term_, 1, second_term_, 1);
-        // c = first_term'*first_term - beta2
-        double c = cblas_ddot(dim_, first_term_, 1, first_term_, 1) - beta2;
-        // alpha = (-b + sqrt(b*b-4*a*c))/(2*a)
-        double alpha = (-b + sqrt(b*b - 4.0*a*c))/(2.0*a);
-    
-        // y = first_term + alpha*second_term
-        cblas_dcopy(dim_, first_term_, 1, y, 1);
-        cblas_daxpy(dim_, -alpha, second_term_, 1, y, 1);
-    } else {
-        // temp = u'*z
-        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
-                    num_vecs_, num_rhs, dim_,
-                    1.0, u_, ldm_, z, ldz,
-                    0.0, temp_, ldb_);       
-        // first_term = u*(s*temp)
-        for (int i = 0; i < num_rhs; i++) {
-            for (int j = 0; j < num_vecs_; j++) {
-                temp_[i * ldb_ + j] *= s_[j];
-            }
-        }
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    dim_, num_rhs, num_vecs_,
-                    1.0, u_, ldm_, temp_, ldb_,
-                    0.0, first_term_, ldm_);
-        // second_term = z - v*(v'*z)       
-        cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
-                    num_vecs_, num_rhs, dim_,
-                    1.0, v_, ldm_, z, ldz,
-                    0.0, temp_, ldb_);
-        cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
-                    dim_, num_rhs, num_vecs_,
-                    1.0, v_, ldm_, temp_, ldb_,
-                    0.0, second_term_, ldm_);
-        if (ldm_ == ldz) {        
-            cblas_daxpy(ldm_ * num_rhs, -1.0, z, 1, second_term_, 1);
-        } else {
-            for (int k = 0; k < num_rhs; k++) {
-                cblas_daxpy(ldm_, -1.0, &z[k * ldz], 1,
-                            &second_term_[k * ldm_], 1);    
-            }
-        }
 
-        mob_->MulVector(num_rhs, 1.0, ldz, z, 0.0, ldy, y);
-        for (int k = 0; k < num_rhs; k++) {
+    for (int irhs = 0; irhs < num_rhs; irhs += max_nrhs_)
+    {
+        int nrhs = (irhs + max_nrhs_ > num_rhs ? num_rhs - irhs: max_nrhs_);       
+        // compute brownian forces
+        if (nrhs == 1) {
+            // temp = u'*z
+            cblas_dgemv(CblasRowMajor, CblasNoTrans,
+                    num_vecs_, dim_, 1.0,
+                    u_, ldm_, &z[ldz * irhs], 1, 0.0, temp_, 1);
+            // first_term = u*(s*temp)        
+            for (int i = 0; i < num_vecs_; i++) {
+                temp_[i] *= s_[i];
+            }
+            cblas_dgemv(CblasColMajor, CblasNoTrans,
+                        dim_, num_vecs_, 1.0,
+                        u_, ldm_, temp_, 1, 0.0, first_term_, 1);
+            // second_term = z - v*(v'*z)
+            cblas_dgemv(CblasRowMajor, CblasNoTrans,
+                        num_vecs_, dim_, 1.0,
+                        v_, ldm_, &z[ldz * irhs], 1, 0.0, temp_, 1);
+            cblas_dgemv(CblasColMajor, CblasNoTrans,
+                        dim_, num_vecs_, 1.0,
+                        v_, ldm_, temp_, 1, 0.0, second_term_, 1);
+            cblas_daxpy(ldm_, -1.0, &z[ldz * irhs], 1, second_term_, 1);       
             // beta2 = z'*M*z
-            double beta2 = cblas_ddot(dim_, &z[k * ldz], 1, &y[k * ldy], 1);
+            mob_->MulVector(1, 1.0, ldz, &z[ldz * irhs],
+                            0.0, ldy, &y[ldy * irhs]);
+            double beta2 = cblas_ddot(dim_, &z[ldz * irhs], 1, 
+                                      &y[ldy * irhs], 1);
             // a = second_term'*second_term
-            double a = cblas_ddot(dim_, &second_term_[k * ldm_], 1,
-                                  &second_term_[k * ldm_], 1);
+            double a = cblas_ddot(dim_, second_term_, 1, second_term_, 1);
             // b = 2*first_term'*second_term
-            double b = -2.0 * cblas_ddot(dim_, &first_term_[k * ldm_],
-                                         1, &second_term_[k * ldm_], 1);
+            double b = -2.0 * cblas_ddot(dim_, first_term_, 1, second_term_, 1);
             // c = first_term'*first_term - beta2
-            double c = cblas_ddot(dim_, &first_term_[k * ldm_], 1,
-                                  &first_term_[k * ldm_], 1) - beta2;
+            double c = cblas_ddot(dim_, first_term_, 1, first_term_, 1) - beta2;
             // alpha = (-b + sqrt(b*b-4*a*c))/(2*a)
             double alpha = (-b + sqrt(b*b - 4.0*a*c))/(2.0*a);
     
             // y = first_term + alpha*second_term
-            cblas_dcopy(dim_, &first_term_[k * ldm_], 1, &y[k * ldy], 1);
-            cblas_daxpy(dim_, -alpha, &second_term_[k * ldm_], 1,
-                        &y[k * ldy], 1);
-        } // for (int k = 0; k < num_rhs; k++)
-    } // if (num_rhs == 1)
+            cblas_dcopy(dim_, first_term_, 1, &y[ldy * irhs], 1);
+            cblas_daxpy(dim_, -alpha, second_term_, 1, &y[ldy * irhs], 1);
+        } else {
+            // temp = u'*z
+            cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
+                        num_vecs_, nrhs, dim_,
+                        1.0, u_, ldm_, &z[ldz * irhs], ldz,
+                        0.0, temp_, ldb_);       
+            // first_term = u*(s*temp)
+            for (int i = 0; i < nrhs; i++) {
+                for (int j = 0; j < num_vecs_; j++) {
+                    temp_[i * ldb_ + j] *= s_[j];
+                }
+            }
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                        dim_, nrhs, num_vecs_,
+                        1.0, u_, ldm_, temp_, ldb_,
+                        0.0, first_term_, ldm_);
+            // second_term = z - v*(v'*z)       
+            cblas_dgemm(CblasColMajor, CblasTrans, CblasNoTrans,
+                        num_vecs_, nrhs, dim_,
+                        1.0, v_, ldm_, &z[ldz * irhs], ldz,
+                        0.0, temp_, ldb_);
+            cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans,
+                        dim_, nrhs, num_vecs_,
+                        1.0, v_, ldm_, temp_, ldb_,
+                        0.0, second_term_, ldm_);
+            if (ldm_ == ldz) {        
+                cblas_daxpy(ldm_ * nrhs, -1.0,
+                            &z[ldz * irhs], 1, second_term_, 1);
+            } else {
+                for (int k = 0; k < nrhs; k++) {
+                    cblas_daxpy(ldm_, -1.0, &z[ldz * irhs + k * ldz], 1,
+                                &second_term_[k * ldm_], 1);    
+                }
+            }
+
+            mob_->MulVector(nrhs, 1.0, ldz, &z[ldz * irhs],
+                            0.0, ldy, &y[ldy * irhs]);
+            for (int k = 0; k < nrhs; k++) {
+                // beta2 = z'*M*z
+                double beta2 = cblas_ddot(dim_, &z[ldz * irhs + k * ldz], 1,
+                                          &y[ldy * irhs + k * ldy], 1);
+                // a = second_term'*second_term
+                double a = cblas_ddot(dim_, &second_term_[k * ldm_], 1,
+                                  &second_term_[k * ldm_], 1);
+                // b = 2*first_term'*second_term
+                double b = -2.0 * cblas_ddot(dim_, &first_term_[k * ldm_],
+                                         1, &second_term_[k * ldm_], 1);
+                // c = first_term'*first_term - beta2
+                double c = cblas_ddot(dim_, &first_term_[k * ldm_], 1,
+                                  &first_term_[k * ldm_], 1) - beta2;
+                // alpha = (-b + sqrt(b*b-4*a*c))/(2*a)
+                double alpha = (-b + sqrt(b*b - 4.0*a*c))/(2.0*a);
+    
+                // y = first_term + alpha*second_term
+                cblas_dcopy(dim_, &first_term_[k * ldm_], 1,
+                            &y[ldy * irhs + k * ldy], 1);
+                cblas_daxpy(dim_, -alpha, &second_term_[k * ldm_], 1,
+                            &y[ldy * irhs + k * ldy], 1);
+            } // for (int k = 0; k < nrhs; k++)
+        } // if (nrhs == 1)
+    }
 }
 
 } // namespace stokesdt

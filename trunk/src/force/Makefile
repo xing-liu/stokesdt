@@ -9,6 +9,6 @@ INSTALLINC = $(notdir $(wildcard *.h))
 
 DESTDIR = $(TOPDIR)/install
 
-INC = -I. -I../util -I../verlet
+INC = -I. -I../util -I../pairlist
 
 include $(TOPDIR)/makerules.in

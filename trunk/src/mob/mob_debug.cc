@@ -26,7 +26,9 @@ MobDebug::MobDebug(const int npos,
       box_size_(box_size),
       tol_(tol),
       xi_(xi),
-      mode_(mode)
+      mode_(mode),
+      ewald_tbl_(NULL),
+      dim_mob_(0)
 {
 
 }
@@ -40,7 +42,9 @@ MobDebug::MobDebug(const int npos,
     : npos_(npos),
       box_size_(box_size),
       tol_(tol),
-      mode_(mode)
+      mode_(mode),
+      ewald_tbl_(NULL),     
+      dim_mob_(0)
 {
     if (box_size > 0.0) {
         xi_ = pow(10.0, 1.0/6.0)*sqrt(M_PI) / box_size_;

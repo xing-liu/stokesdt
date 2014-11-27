@@ -203,7 +203,12 @@ int BrwnLanczos::BlockLanczos(MobBase *mob,
 
 BrwnLanczos::BrwnLanczos(const int dim, const int max_iters,
                          const int max_nrhs, const double tol)
-    : dim_(dim), max_iters_(max_iters), max_nrhs_(max_nrhs), tol_(tol)
+    : dim_(dim),
+      max_iters_(max_iters),
+      max_nrhs_(max_nrhs),
+      tol_(tol),
+      v_(NULL),
+      y_old_(NULL)
 {
 
 }
@@ -282,10 +287,10 @@ void BrwnLanczos::Compute(MobBase *mob, const int num_rhs,
         int nrhs = (irhs + max_nrhs_ > num_rhs ? num_rhs - irhs: max_nrhs_);
         int niters;        
         if (nrhs == 1) { // single Lanczos
-            niters = Lanczos(mob, &(z[ldz * irhs]), &(y[ldy* irhs]));
+            niters = Lanczos(mob, &(z[ldz * irhs]), &(y[ldy * irhs]));
         } else { // block Lanczos
             niters = BlockLanczos(mob, nrhs, ldz, &(z[ldz * irhs]),
-                                  ldy, &(y[ldy* irhs]));
+                                  ldy, &(y[ldy * irhs]));
         }
         if (niters > 0) {
             LOG(3, "Computed Lanczos (%d vectors): converged in %d steps\n",
