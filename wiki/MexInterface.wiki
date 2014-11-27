@@ -43,8 +43,8 @@ StokesDT provides the following functions via the Matlab interface.
 
 ===Computing Short-range interactions===
 {{{
->> help compute_verlet
-  [pi, pj] = compute_verlet(pos, rdi, L, cutoff, mode)
+>> help compute_pairlist
+  [pi, pj] = compute_pairlist(pos, rdi, L, cutoff, mode)
     Compute short-range interactions between all the particles.
     The particle pairs within the cutoff distance are stored in [pi, pj].
   INPUT
