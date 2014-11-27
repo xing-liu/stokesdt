@@ -29,8 +29,11 @@ MobSpme::MobSpme(const int npos,
       rmax_(rmax),
       dim_(dim),
       porder_(porder),
-      verlet_list_(npos, rdi, box_size, rmax),
-      rdi_(rdi, rdi + npos)
+      pair_list_(npos, rdi, box_size, rmax),
+      rdi_(rdi, rdi + npos),
+      real_mat_(NULL),
+      spme_(NULL),
+      dim_mob_(0)
 {
 
 }
@@ -114,9 +117,9 @@ bool MobSpme::Init()
         }
     }
 
-    int init_nnzb = verlet_list_.Init();
+    int init_nnzb = pair_list_.Init();
     if (init_nnzb <= 0) {
-        LOG_ERROR("Failed to initialize the Verlet list\n");
+        LOG_ERROR("Failed to initialize the Pair list\n");
         return false;          
     }
 
@@ -204,9 +207,9 @@ void MobSpme::Update(const double *pos, const double *rdi)
     START_TIMER(detail::MOB_TICKS);
     
     detail::UpdateSpmeEngine(pos, spme_);
-    int nnz = verlet_list_.Build(pos);
+    int nnz = pair_list_.Build(pos);
     detail::ResizeSparseMatrix(nnz, real_mat_);
-    verlet_list_.GetPairs(real_mat_->rowbptr, real_mat_->colbidx);
+    pair_list_.GetPairs(real_mat_->rowbptr, real_mat_->colbidx);
     BuildSparseReal(pos, rdi);
 
     STOP_TIMER(detail::MOB_TICKS);

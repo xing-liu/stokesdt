@@ -99,9 +99,9 @@ class MobDebug {
     /// the number of particles
     int npos_;
     /// the dimension of the mobility matrix
-    int dim_mob_ = 0;
+    int dim_mob_;
     /// the Ewald tables
-    detail::EwaldTable *ewald_tbl_ = NULL;
+    detail::EwaldTable *ewald_tbl_;
 };
 
 } // namespace stokesdt

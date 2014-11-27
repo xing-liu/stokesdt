@@ -26,7 +26,10 @@ MobEwald::MobEwald(const int npos,
     : npos_(npos),
       box_size_(box_size),
       tol_(tol),
-      xi_(xi)
+      xi_(xi),
+      ewald_tbl_(NULL),
+      mat_(NULL),
+      dim_mob_(0)
 {
 
 }
@@ -39,7 +42,10 @@ MobEwald::MobEwald(const int npos,
                    const double tol)
     : npos_(npos),
       box_size_(box_size),
-      tol_(tol)
+      tol_(tol),
+      ewald_tbl_(NULL),
+      mat_(NULL),
+      dim_mob_(0)
 {
     if (box_size > 0.0) {
         xi_ = pow(10.0, 1.0/6.0)*sqrt(M_PI) / box_size_;

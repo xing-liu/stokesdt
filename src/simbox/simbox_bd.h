@@ -28,7 +28,8 @@ enum MobMethod {
 
 enum BrwnbMethod {
     BRWN_CHOL    = 0,
-    BRWN_LANCZOS = 1
+    BRWN_LANCZOS = 1,
+    BRWN_RANDOM  = 2
 };
 
 /** @class  BDSimBox

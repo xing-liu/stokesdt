@@ -62,19 +62,19 @@ class BrwnRandom : public BrwnBase {
     /// the maximum number of right-hand sides
     int max_nrhs_;
     /// the buffer for random vectors
-    double *u_ = NULL;
+    double *u_;
     /// the buffer for s
-    double *s_ = NULL;
+    double *s_;
     /// the buffer for V
-    double *v_ = NULL;
+    double *v_;
     /// the buffer for the first term
-    double *first_term_ = NULL;
+    double *first_term_;
     /// the buffer for the second term
-    double *second_term_ = NULL;
+    double *second_term_;
     /// the random number generator
-    RndStream *rnd_stream_ = NULL;
+    RndStream *rnd_stream_;
     /// the mobility matrix
-    MobBase *mob_ = NULL;
+    MobBase *mob_;
 
     double *tau_;
     double *b_;

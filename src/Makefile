@@ -1,6 +1,6 @@
 .PHONY: all install clean
 
-SUBDIR = brwn force mob simbox util verlet include
+SUBDIR = brwn force mob simbox util pairlist include
 
 all:
 	@for dir in $(SUBDIR); \

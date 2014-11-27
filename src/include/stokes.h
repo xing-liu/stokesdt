@@ -7,7 +7,7 @@
 #define STOKES_H_
 
 #include "stokes_mob.h"
-#include "stokes_verlet.h"
+#include "stokes_pair.h"
 #include "stokes_brwn.h"
 #include "stokes_force.h"
 #include "stokes_simbox.h"

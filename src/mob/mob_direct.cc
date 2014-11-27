@@ -19,7 +19,9 @@ namespace stokesdt{
 
 MobDirect::MobDirect(const int npos,
                      const double *rdi)
-    : npos_(npos)
+    : npos_(npos),
+      dim_mob_(0),
+      mat_(NULL)
 {
 
 }

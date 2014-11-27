@@ -163,7 +163,7 @@ void EwaldKernel(const double xi, const EwaldTable *ewald_tbl,
                             real0 = self_a;
                             real3 = self_a;
                             real5 = self_a;                            
-                        }                    
+                        }
                         // real part
                         int nr0 = 0;
                         for (int m = 0; m < nr; m++) {
@@ -801,6 +801,8 @@ bool CreateEwaldTable(const double xi, const double box_size,
                       const double tol, EwaldTable **p_ewald_tbl)
 {
     EwaldTable *tbl = new EwaldTable();
+    memset(tbl, 0, sizeof(EwaldTable));
+    
     InitRealTable(xi, box_size, tol, tbl);
     InitRecipTable(xi, box_size, tol, tbl);
     *p_ewald_tbl = tbl;

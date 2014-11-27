@@ -61,9 +61,9 @@ class MobDirect : public MobMatrix {
     /// the number of particles
     int npos_;
     /// the pointer to the dense mobility matrix
-    double *mat_ = NULL;
+    double *mat_;
     /// the dimension of the mobility matrix
-    int dim_mob_ = 0;
+    int dim_mob_;
     /// the leading dimension of the mobility matrix
     int ldm_;
 };

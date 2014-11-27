@@ -33,7 +33,11 @@ const int kAlignLen = 64;
 /// Allocates aligned memory
 inline void *AlignMalloc(size_t size)
 {
+#ifdef __INTEL_COMPILER
     void * addr = _mm_malloc(size, kAlignLen);
+#else
+    void * addr = memalign(kAlignLen, size);
+#endif
     return addr;
 }
 
@@ -42,7 +46,11 @@ inline void *AlignMalloc(size_t size)
 inline void AlignFree(void *addr)
 {
     if (addr != NULL) {
+    #ifdef __INTEL_COMPILER
         _mm_free(addr);
+    #else
+        free(addr);
+    #endif
     }
 }
 

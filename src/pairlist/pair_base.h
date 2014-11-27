@@ -1,6 +1,6 @@
 /**
- * @file   verlet_base.h
- * @brief  VerletListBase class definition
+ * @file   pair_base.h
+ * @brief  PairListBase class definition
  */
 
 #ifndef VERLET_BASE_H_
@@ -14,13 +14,13 @@
 namespace stokesdt {
 
 /**
- * @class  VerletListBase
- * @brief  Abstract base class for Verlet list
+ * @class  PairListBase
+ * @brief  Abstract base class for Pair list
  */
-class VerletListBase {
+class PairListBase {
   public:
     /// Class deconstructor
-    virtual ~VerletListBase();
+    virtual ~PairListBase();
 
     /**
      * @brief  Initializes the instance.
@@ -63,7 +63,7 @@ class VerletListBase {
      * @param[in] box_size  the dimension of the simulation box
      * @param[in] cutoff    the cutoff distance
      */
-    VerletListBase(const int npos,
+    PairListBase(const int npos,
                    const double *rdi,
                    const double box_size,
                    const double cutoff);
@@ -144,7 +144,7 @@ class VerletListBase {
     double get_min_radius() {return min_radius_;};
         
   private:
-    DISALLOW_COPY_AND_ASSIGN(VerletListBase);
+    DISALLOW_COPY_AND_ASSIGN(PairListBase);
 
     /**
      * @brief  Constructs the cell list
@@ -190,7 +190,7 @@ class VerletListBase {
     std::vector<double> rdi_;
     /// the dimension of the simulation box size
     double box_size_;
-    /// the Verletlist cutoff
+    /// the Pairlist cutoff
     double cutoff_;
     /// the number of cells in 1D
     int nc1_;
