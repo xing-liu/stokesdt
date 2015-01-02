@@ -83,6 +83,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     int nnz = pair->Build(pos);
       
     // Write plhs[0], plhs[1]
+#if 0
     plhs[0] = mxCreateNumericMatrix(nnz, 1, mxINT32_CLASS, mxREAL);
     plhs[1] = mxCreateNumericMatrix(nnz, 1, mxINT32_CLASS, mxREAL);
     int *id1 = (int *)mxGetPr(plhs[0]);
@@ -96,6 +97,13 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
             id1[j] = i;
         }
     }
+#else
+    plhs[0] = mxCreateNumericMatrix(npos+1, 1, mxINT32_CLASS, mxREAL);
+    plhs[1] = mxCreateNumericMatrix(nnz, 1, mxINT32_CLASS, mxREAL);
+    int *id1 = (int *)mxGetPr(plhs[0]);
+    int *id2 = (int *)mxGetPr(plhs[1]);
+    pair->GetPairs(id1, id2);
+#endif
     
     delete pair;
 }
