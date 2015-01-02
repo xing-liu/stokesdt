@@ -11,6 +11,8 @@ cutoff2 = cutoff*cutoff;
 [ia ja] = compute_pairlist(pos(:), radii, L, cutoff, 'R');
 % 0-based indexing
 
+length(ja)
+
 for i=1:npos
   for j=ia(i)+1:ia(i+1)
     r = pos(:,i) - pos(:,ja(j)+1);
