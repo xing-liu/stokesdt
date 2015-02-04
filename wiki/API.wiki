@@ -7,7 +7,7 @@ StokesDT provides an object-oriented interface which can be easily used to devel
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_rnd_stream.html RndStream] ||Random number generator||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase] ||Abstract base class for Pair list||
 
-A detailed description of the StokeSDT library and its APIs can be found [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html here]. The StokesDT library can be used for the following purposes:
+A detailed description of the StokesDT library and its APIs can be found [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html here]. The StokesDT library can be used for the following purposes:
  * [API#Computing_Mobility_Matrices Computing Mobility Matrices]
  * [API#Computing_Brownian_Displacements/Forces Computing Brownian Displacements/Forces]
  * [API#Computing_External_Forces Computing External Forces]
@@ -19,9 +19,9 @@ The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt
 
 || Class || Description ||
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] ||Abstract base class for constructing mobility matrix||
-||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_matrix.html MobMatrix]||Abstract base class for explicitly constructing and storing mobilit matrices||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_matrix.html MobMatrix]||Abstract base class for explicitly constructing and storing mobility matrices||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_direct.html, MobDirect]||Computes mobility matrices with free boundary conditions ||
-||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summations||
+||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_ewald.html MobEwald]||Computes mobility matrices using Ewald summation||
 ||[http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_spme.html MobSpme]||Computes mobility matrix using SPME||
 
 The following example computes a mobility matrix using the Ewald algorithm.
