@@ -131,9 +131,9 @@ delete steric;
 }}}
 
 ==Generating Random Vectors==
-The class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_mob_base.html MobBase] can be used to generate random vectors in Gaussian or uniform distribution.
+The class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_rnd_stream.html RndStream] can be used to generate random vectors in Gaussian or uniform distribution.
 
-==Computing Pair List==
+==Computing Pair Lists==
 The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase] and its derived classes construct pair list, which can be used to compute short-range interactions. These classes and their brief descriptions are listed as follows:
 
 || [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt_1_1_pair_list_base.html PairListBase]||Abstract base class for Pair list||
