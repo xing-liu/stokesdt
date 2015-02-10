@@ -113,7 +113,7 @@ The base class [http://www.cc.gatech.edu/~xliu66/stokesdt/doc/html/classstokesdt
 The following example computes all the steric forces.
 {{{
 // Create a StericForce object
-ForceBase *steric = new StericForce(npos, rdi, box_size, cutoff, k0);
+ForceBase *steric = new StericForce(npos, rdi, box_size, r0, k0);
 if (!steric->Init()) {
     return false;
 }
