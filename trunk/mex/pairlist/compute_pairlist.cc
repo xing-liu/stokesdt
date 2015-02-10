@@ -23,30 +23,30 @@ using namespace stokesdt;
 void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
 {    
     if (nrhs != 5) {
-        mexErrMsgTxt("compute_ewald.m: invalid input.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid input.\n");
     }
 
     // Read prhs[0]
     int npos = mxGetM(prhs[0])/3;
     if (mxGetM(prhs[0])%3 != 0 || npos <= 0) {
-        mexErrMsgTxt("compute_ewald.m: invalid pos.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid pos.\n");
     }
     double *pos = mxGetPr(prhs[0]);
 
     // Read prhs[1]
     if (mxGetM(prhs[1]) != npos) {
-        mexErrMsgTxt("compute_ewald.m: invalid rdi.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid rdi.\n");
     }
     double *rdi = mxGetPr(prhs[1]);
     
     // Read prhs[2]
     if (mxGetM(prhs[2]) != 1) {
-        mexErrMsgTxt("compute_ewald.m: invalid L.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid L.\n");
     }
     double *data = mxGetPr(prhs[2]);
     double L = data[0];
     if (L <= 0.0) {
-        mexErrMsgTxt("compute_ewald.m: L is smaller than or equal to 0.0.\n");
+        mexErrMsgTxt("compute_pairlist.m: L is smaller than or equal to 0.0.\n");
     }
 
     // Read prhs[3] 
@@ -63,7 +63,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     // Read prhs[4]
     char *mode = mxArrayToString(prhs[4]);
     if (mode == NULL) {
-        mexErrMsgTxt("compute_ewald.m: invalid input.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid input.\n");
     }
     
     // Create Pair list
@@ -73,11 +73,11 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     } else if (strcmp(mode, "S") == 0) {      
         pair = new  PairListS(npos, rdi, L, cutoff);
     } else {        
-        mexErrMsgTxt("compute_ewald.m: invalid input.\n");
+        mexErrMsgTxt("compute_pairlist.m: invalid input.\n");
     }
 
     if (pair->Init() <= 0) {
-        mexErrMsgTxt("compute_ewald.m: failed to initialize"
+        mexErrMsgTxt("compute_pairlist.m: failed to initialize"
                      " the compute engine.\n");    
     }
     int nnz = pair->Build(pos);
