@@ -7,6 +7,7 @@
 using namespace stokesdt;
 
 // [ia, ja] = pairlist_mex(pos, rdi, L, cutoff, mode)
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {    
     if (nrhs != 5) {
