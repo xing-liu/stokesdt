@@ -11,13 +11,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         mexErrMsgTxt("Incorrect number of input arguments.");
     }
 
-    double *pos =  mxGetPr(prhs[0]);
-    double *rdi =  mxGetPr(prhs[1]);
-    double  L   = *mxGetPr(prhs[2]);
-    double  r0  = *mxGetPr(prhs[3]);
-    double  k0  = *mxGetPr(prhs[4]);
+    const double *pos =  mxGetPr(prhs[0]);
+    const double *rdi =  mxGetPr(prhs[1]);
+    const double  L   = *mxGetPr(prhs[2]);
+    const double  r0  = *mxGetPr(prhs[3]);
+    const double  k0  = *mxGetPr(prhs[4]);
 
-    int npos = mxGetN(prhs[0]);
+    const int npos = mxGetN(prhs[0]);
 
     if (mxGetM(prhs[0]) != 3) {
         mexErrMsgTxt("Invalid argument (pos must have leading dimension 3).");

@@ -7,19 +7,19 @@
 using namespace stokesdt;
 
 // [ia, ja] = pairlist_mex(pos, rdi, L, cutoff, mode)
-void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
+void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {    
     if (nrhs != 5) {
         mexErrMsgTxt("Incorrect number of input arguments.");
     }
 
-    double *pos    =  mxGetPr(prhs[0]);
-    double *rdi    =  mxGetPr(prhs[1]);
-    double  L      = *mxGetPr(prhs[2]);
-    double  cutoff = *mxGetPr(prhs[3]);
-    char   *mode   =  mxArrayToString(prhs[4]);
+    const double *pos    =  mxGetPr(prhs[0]);
+    const double *rdi    =  mxGetPr(prhs[1]);
+    const double  L      = *mxGetPr(prhs[2]);
+    const double  cutoff = *mxGetPr(prhs[3]);
+    const char   *mode   =  mxArrayToString(prhs[4]);
 
-    int npos = mxGetN(prhs[0]);
+    const int npos = mxGetN(prhs[0]);
 
     if (mxGetM(prhs[0]) != 3) {
         mexErrMsgTxt("Invalid argument (pos must have leading dimension 3).");
@@ -34,7 +34,7 @@ void mexFunction(int nlhs, mxArray * plhs[], int nrhs, const mxArray * prhs[])
     }
 
     if (2.*cutoff >= L) {
-        mexErrMsgTxt("cutoff is larger than or equal to L/2.");
+        mexErrMsgTxt("cutoff must be less than L/2.");
     }
 
     if (mode == NULL) {
