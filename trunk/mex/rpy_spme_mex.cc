@@ -5,19 +5,8 @@
 
 using namespace stokesdt;
 
-/**
- * prhs[0]: pos(nm x 1)      the vector of particle coordinates
- * prhs[1]: rdi(npos x 1)    the vector of particle coordinates
- * prhs[2]: L(1 x 1)         the simulation box size
- * plhs[3]: f(nm x num_rhs)  the vector of forces 
- * prhs[4]: mode(1 x 1)      'full', 'real' or 'recip'
- * prhs[5]: xi(1 x 1)        the Ewald parameter
- * prhs[6]: rmax(1 x 1)      the real-space cutoff
- * prhs[7]: dim(1 x 1)       the dimension of FFT grid
- * prhs[8]: porder(1 x 1)    the interpolation order
- *      
- * plhs[1]: v(nm x num_rhs)  the vector of velocities
- */
+// v = rpy_spme_mex(pos, rdi, L, f, mode, xi, rmax, dim, porder)
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {    
     if (nrhs != 9) {

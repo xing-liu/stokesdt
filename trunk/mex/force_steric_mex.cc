@@ -5,6 +5,7 @@
 using namespace stokesdt;
 
 // f = forces_steric_mex(pos, rdi, L, r0, k0)
+
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {    
     if (nrhs != 5) {
