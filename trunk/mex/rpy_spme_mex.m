@@ -12,5 +12,6 @@
 %   rmax      the real-space cutoff
 %   dim       the dimension of FFT grid
 %   porder    the interpolation order
+%
 % OUTPUT
 %   v         the block of vectors of velocities
