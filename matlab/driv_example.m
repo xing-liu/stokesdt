@@ -29,9 +29,11 @@ nk = 3;
 r0 = 2;   % A
 k0 = 125; % kcal/mol/A^2
 
-matrixfun = @(pos) my_ewald(pos, L, xi, nr, nk);
+matrixfun = @(pos) rpy_ewald_mex_wrapper(pos, L, xi, nr, nk);
 matrixfun = @(pos) rpy_ewald_matrix_mex(pos, radii, L, 1e-4, 'full', xi);
 forcefun  = @(pos) force_steric_mex(pos, radii, L, r0, k0);
+forcefun  = @(pos) force_repulsion_mex(pos, L, k0);
+forcefun  = @(pos) force_repulsion(pos, L, k0);
 
 for i=1:num_intervals
   pos = bd(pos, L, num_steps, deltat, matrixfun, forcefun);
@@ -39,7 +41,8 @@ for i=1:num_intervals
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function d = my_ewald(pos, L, xi, nr, nk)
+function d = rpy_ewald_mex_wrapper(pos, L, xi, nr, nk)
+%[mob mob_self mob_real mob_recip] = rpy_ewald(pos, L, xi, nr, nk);
 d = rpy_ewald_mex(pos, L, xi, nr, nk);
 d = d + d' + rpy_overlap_correction(pos, L);
 
