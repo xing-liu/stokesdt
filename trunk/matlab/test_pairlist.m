@@ -1,4 +1,5 @@
 clear all
+path(path,'../mex');
 rng('default')
 
 % L x L x L simulation box

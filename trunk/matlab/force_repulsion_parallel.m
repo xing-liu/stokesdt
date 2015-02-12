@@ -8,7 +8,7 @@ radii = ones(npos,1);
 cutoff = 2;
 cutoff2 = cutoff*cutoff;
 
-[ia ja] = compute_pairlist(pos(:), radii, L, cutoff, 'R');
+[ia ja] = pairlist_mex(pos, radii, L, cutoff, 'R');
 % 0-based indexing
 
 length(ja)
