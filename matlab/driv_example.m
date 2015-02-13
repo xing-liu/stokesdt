@@ -11,7 +11,9 @@ L = (4/3*pi*npos/phi)^(1/3); % box width
 pos = rand(3,npos)*L;        % initial positions in box
 radii = ones(1,npos);        % particle radii
 
+tic
 bd_driver(pos, radii, L, 'test.xyz');
+toc
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function bd_driver(pos, radii, L, filename)
@@ -31,9 +33,9 @@ k0 = 125; % kcal/mol/A^2
 
 matrixfun = @(pos) rpy_ewald_mex_wrapper(pos, L, xi, nr, nk);
 matrixfun = @(pos) rpy_ewald_matrix_mex(pos, radii, L, 1e-4, 'full', xi);
-forcefun  = @(pos) force_steric_mex(pos, radii, L, r0, k0);
+forcefun  = @(pos) force_repulsion(pos, L, k0); % very slow
 forcefun  = @(pos) force_repulsion_mex(pos, L, k0);
-forcefun  = @(pos) force_repulsion(pos, L, k0);
+forcefun  = @(pos) force_steric_mex(pos, radii, L, r0, k0);
 
 for i=1:num_intervals
   pos = bd(pos, L, num_steps, deltat, matrixfun, forcefun);

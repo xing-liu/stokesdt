@@ -22,3 +22,10 @@ rpy_ewald.m
 rpy_ewald_refactored2.m
 rpy_ewald_mex.c
 rpy_overlap_correction.m
+
+
+===================
+Does forcefun need to have positions in the box, or does forcefun
+ always fold positions inside the box... should be yes
+
+spme needs pos def correction ?
