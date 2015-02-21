@@ -2,8 +2,8 @@ clear all
 path(path,'../mex');
 rng('default')
 
-npos = 50;
-phi = 0.1;
+npos = 100;
+phi = 0.3;
 L = (4/3*pi*npos/phi)^(1/3);
 pos = rand(3,npos)*L;
 
@@ -14,6 +14,12 @@ nk = 3;
 tic
 corr = rpy_overlap_correction(pos, L);
 toc
+
+tic
+corr2 = rpy_overlap_correction_mex(pos, L);
+toc
+
+norm(corr-corr2,'fro')
 
 % how are nr and nk chosen?
 % how can we find out what was chosen

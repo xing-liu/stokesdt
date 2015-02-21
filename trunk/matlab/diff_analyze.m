@@ -1,7 +1,14 @@
-function diff_analyze(dvec)
-% assuming 9999 data points
-% throw away first part and divide remaining into three segments
-s(1) = mean(dvec(4000:5999));
-s(2) = mean(dvec(6000:7999));
-s(3) = mean(dvec(8000:9999));
-fprintf('mean: %f  std: %f\n', mean(s), std(s));
+function diff_analyze(dvec, numseg)
+n = length(dvec);
+seglen = floor(n/numseg);
+s = zeros(numseg,1);
+for i=1:numseg
+  s(i) = mean(dvec((i-1)*seglen+1:i*seglen));
+end
+fprintf('Original number of samples: %d\n', n);
+fprintf('Discarding first %d samples\n', seglen);
+averg = mean(s(2:end));
+stdev = std(s(2:end));
+fprintf('Mean: %f    std: %f\n', averg, stdev);
+fprintf('Error bars:  %f  %f\n', averg-stdev, averg+stdev);
+s
