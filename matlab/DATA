@@ -1,0 +1,8 @@
+xyz_file                  deltat  num_steps  chol_update   num_frames  diff
+
+notrunc-0100              0.002    50  0.1     50  0.1       100000    0.52
+phi30-0100.chol1          0.002    50  0.1      1  0.002      70000+   0.53
+phi30-0100.halftimestep   0.001   100  0.1     50  0.05      100000    0.53
+
+phi30-0100.chol100.half   0.001   100  0.1    100  0.1       
+
