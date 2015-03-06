@@ -1,17 +1,33 @@
-function diffstride = diff_stride
+function diffstride = diff_stride(filename, maxstride, first)
+% diffstride = diff_stride(filename, maxstride, first)
 % compute diffusion coefficient for different time intervals (strides)
+% last two arguments are optional
 
-maxstride = 300;
-numframes = 42400;
-filename = 'phi30-0100.chol1.xyz';
-filename = 'notrunc-0100.xyz';
-filename = 'phi30-0100.halftimestep.xyz';
-deltat = 0.1; % from input file
-first = 10000; % first frame to analyze (skip earlier ones)
+if nargin < 3
+  % first frame to analyze (skip earlier ones)
+  first = 30000;
+end
+if nargin < 2
+  maxstride = 3000;
+end
 
-% set parameters above this line
+% read number of particles and time between frames
+fid = fopen(filename, 'r');
+[npos        count] = fscanf(fid, '%d', 1);
+[framedeltat count] = fscanf(fid, '%f', 1);
+fclose(fid);
 
-all = zeros(100,3,numframes);
+% read number of frames
+[status result] = system(sprintf('wc %s', filename));
+numlines = sscanf(result, '%d', 1);
+numframes = floor(numlines/(npos+2));
+
+fprintf('num particles: %d\n', npos);
+fprintf('framedeltat: %f\n', framedeltat);
+fprintf('num frames: %d\n', numframes);
+fprintf('firstframe: %d\n', first);
+
+all = zeros(npos,3,numframes);
 fid = fopen(filename, 'r');
 for i=1:numframes
   if mod(i,1000)==0, fprintf('%d ', i); end
@@ -36,6 +52,8 @@ for stride=1:maxstride
     num = num + 1;
     pos0 = pos;
   end
-  diffstride(stride) =  tot/(6*deltat*stride*num);
-  fprintf('stride %3d   %f\n', stride, diffstride(stride));
+  diffstride(stride) =  tot/(6*framedeltat*stride*num);
+  if (mod(stride,100)==0)
+    fprintf('stride %4d   %f\n', stride, diffstride(stride));
+  end
 end
