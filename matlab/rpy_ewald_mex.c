@@ -101,7 +101,7 @@ out:
     // real-space sum
 
     WALLCLOCK(time0_real);
-#pragma omp parallel num_threads(4) private(i,j,posi,posj,temp,rvec,rvec0,x,y,z,r2,r,eye3_coef,m11,m12,ap0,ap,   kvec,k,t,m2,ind)
+#pragma omp parallel num_threads(20) private(i,j,posi,posj,temp,rvec,rvec0,x,y,z,r2,r,eye3_coef,m11,m12,ap0,ap,   kvec,k,t,m2,ind)
   {
 #pragma omp for schedule(dynamic)
     for (i=0; i<np; i++)
