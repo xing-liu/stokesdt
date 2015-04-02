@@ -142,25 +142,53 @@ for step = 1:num_outer
   pos0 = mod(pos,L);
   d = matrixfun(pos0);
 
-  [u s v] = svd(d);
-  m = trunc;
-  u1 = u(:,1:m);
-  s1 = s(1:m,1:m);
-  sqrts1 = sqrt(diag(s1));
+  omega = randn(3*npos,trunc);
+  v = mycgs(d*(d*(d*omega)));
+  b = v'*d*v;
+  [uu ss ~] = svd(b);
+  u = v*uu;
+  s = sqrtm(ss);
+  % no longer need uu and ss
 
   for inner = 1:cholesky_update_interval
     % compute forces
     forces = forcefun(pos);
 
-    % Brownian displacement
+    % randomized approximation with good correction
+    % implements equation 8 in the proposal
+    % u*s*u' = v*sqrtm(b)*v' but the left side is faster because s is diagonal
     z = randn(3*npos,1);
-    z1 = u1'*z;
-    % should check that argument to sqrt is nonnegative
-    gamma = sqrt( (z'*d*z - z1'*s1*z1) / (z'*z - z1'*z1) );
-    y = u1*(sqrts1.*z1) + gamma*(z - u1*z1);
+    first_term = u*(s*(u'*z));
+    second_term = z - v*(v'*z);  % use v not u
+    % possible that z'*d*z changes slowly
+    y = augment_vector(first_term, second_term, z'*d*z);
 
     % update positions (do not apply minimum image convention)
     pos(:) = pos(:) + deltat*(d*forces(:)) + sqrt(2*deltat)*y;
   end
 
+end
+
+function y = augment_vector(v, w, beta2)
+% 
+a = w'*w;
+b = 2*v'*w;
+c = v'*v - beta2;
+% roots have same magnitude and opposite signs
+alpha = (-b + sqrt(b*b-4*a*c))/(2*a);
+y = v + alpha*w;
+
+function V = mycgs(A)
+% classical Gram schmidt
+% only return columns of V
+n = size(A,2); % number of cols
+for j=1:n
+  vj = A(:,j);
+  if (j > 1)
+     r = V(:,1:j-1)' * A(:,j);  % matvec
+     for i = 1:j-1
+        vj = vj - r(i) * V(:,i);
+     end
+  end
+  V(:,j) = vj / norm(vj);
 end
