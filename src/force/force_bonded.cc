@@ -46,8 +46,8 @@ bool BondedForce::Init()
     LOG(3, "        -----------------------\n");    
     LOG(3, "number-bonds = %d\n", num_bonds);
     for (int i = 0; i < num_bonds; i++) {
-        int id_a = std::get<0>(bonds_[i]);
-        int id_b = std::get<1>(bonds_[i]);
+        int id_a = std::get<0>(bonds_[i]) - 1;
+        int id_b = std::get<1>(bonds_[i]) - 1;
         double r0 = std::get<2>(bonds_[i]);
         double k0 = std::get<3>(bonds_[i]);
         if (id_a < 0 || id_a >= npos ||

@@ -197,7 +197,7 @@ bool BDSimBox::InitForces()
     std::string str_line;
     for (int i = 0; i < num_bonds; i++) {
         const char *line = mol_io_->GetLine("bond", i);
-        sscanf(line, "%*s %d %d %le %le", &(bond_id0[i]), &(bond_id1[i]),
+        sscanf(line, "%d %d %le %le", &(bond_id0[i]), &(bond_id1[i]),
             &(bond_cutoff[i]), &(bond_k0[i]));
     }
     if (num_bonds > 0) {
